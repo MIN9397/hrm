@@ -63,13 +63,13 @@
   <!-- 헤더 -->
   <div class="user-menu">
   	  <a href="/mypage">홈(Home)</a>
-      <a href="/login">로그인</a>
+      <a href="/">로그인</a>
       <a href="/register">로그아웃</a>
  	  <a href="/re_data">마이프로필</a>
   </div>
   <header>
     <div class="logo">
-       <a href="/main"><img src="/img/hotel_logo2.jpg" alt="로고" /></a>
+       <a href="/main"><img src="/img/logo.png" alt="로고" /></a>
      <!-- <strong>내맘대로</strong> HOTEL -->
     </div>
     

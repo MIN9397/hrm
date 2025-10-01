@@ -7,6 +7,8 @@
 <title>Insert title here</title>
 </head>
 <body>
-<%@include file="/hrm/header.jsp" %>
+
+<%@include file="/hrm/side.jsp" %>
+
 </body>
 </html>
