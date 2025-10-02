@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -137,21 +138,35 @@
         관리자는 프로그램에서는 모든 기능을 정상적으로 사용할 수 있습니다.
       </p>
     </div>
-
     <!-- 오른쪽 로그인 폼 -->
     <div class="right">
+	<form action="/login" method="post">
+      <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+	  
       <h1>내맘대로 H.R.M</h1>
       <div class="form-group">
-        <input type="e_id" placeholder="사원번호 입력하세요.">
+     	  <c:if test="${param.error != null}">
+				아이디 비밀번호를 확인후 다시 시도해주세요.
+		  </c:if>
+		  <c:if test="${param.logout != null}">
+				You have been logged out.
+		  </c:if>
       </div>
       <div class="form-group">
-        <input type="name" placeholder="이름을 입력하세요.">
+       	<input type="text" name="empno" placeholder="사원번호 입력하세요.">
       </div>
       <div class="form-group">
-		<input type="passworld" placeholder="passworld">
+        <input type="text" name="id" placeholder="이름을 입력하세요." value="user">
       </div>
-      <button class="btn">로그인</button>
+      <div class="form-group">
+		<input type="text" name="pw" placeholder="password"  value="password">
+      </div>
+      <div class="form-group">
+      	<button class="btn" type="submit">로그인</button>
+      </div>
       <div class="phone">📞 031-123-4567</div>
+      
+	</form>
     </div>
   </div>
 </body>

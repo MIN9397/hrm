@@ -1,7 +1,13 @@
 package com.example.hrm.controller;
 
+import java.net.Authenticator;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class HelloController {
@@ -18,10 +24,22 @@ public class HelloController {
 	}
 	
 	@GetMapping("/main")
-	private String login() {
+	private String main() {
 		return "/hrm/main";
 	}
 	
-
+	@GetMapping("/login")
+	private String login() {
+		System.out.println("=======================test");
+		return "/hrm/login";
+	}
+	
+	// 로그인 성공시 세션에 로그인 정보를 저장
+	@GetMapping("/login-success")
+	private String loginsuccess(@AuthenticationPrincipal UserDetails user, HttpSession session) {
+		System.out.println("user : " + user);
+		session.setAttribute("user", user);
+		return "redirect:/main";
+	}
 	
 }
