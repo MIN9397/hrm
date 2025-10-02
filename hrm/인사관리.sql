@@ -1,0 +1,257 @@
+﻿CREATE TABLE `ROLE` (
+	`employee_id`	INT	NULL,
+	`role_id`	INT	NULL,
+	`role_name`	VARCHAR(100)	NULL
+);
+
+CREATE TABLE `PERFORMANCE` (
+	`employee_id`	INT	NULL,
+	`performance_id`	INT	NULL,
+	`evaluator_id`	INT	NULL,
+	`eval_date`	DATE	NULL,
+	`score`	INT	NULL
+);
+
+CREATE TABLE `JOB` (
+	`dept_id`	INT	NULL,
+	`job_id`	INT	NULL,
+	`job_title`	VARCHAR(100)	NULL,
+	`min_salary`	INT	NULL,
+	`max_salary`	INT	NULL
+);
+
+CREATE TABLE `ATTENDANCE` (
+	`employee_id`	INT	NULL,
+	`dept_id`	INT	NULL,
+	`attendance_id`	INT	NULL,
+	`work_date`	DATE	NULL,
+	`check_in_time`	TIME	NULL,
+	`check_out_time`	TIME	NULL
+);
+
+CREATE TABLE `SALARY_HISTORY` (
+	`employee_id`	INT	NULL,
+	`dept_id`	INT	NULL,
+	`salary_id`	INT	NULL,
+	`start_date`	DATE	NULL,
+	`end_date`	DATE	NULL,
+	`salary`	INT	NULL
+);
+
+CREATE TABLE `PAYROLL` (
+	`employee_id`	INT	NULL,
+	`dept_id`	INT	NULL,
+	`payroll_id`	INT	NULL,
+	`pay_date`	DATE	NULL,
+	`base_salary`	INT	NULL,
+	`bonus`	INT	NULL,
+	`total_pay`	INT	NULL
+);
+
+CREATE TABLE `USER_ACCOUNT` (
+	`employee_id`	INT	NULL,
+	`user_id`	INT	NULL,
+	`username`	VARCHAR(100)	NULL,
+	`password`	VARCHAR(100)	NULL,
+	`role_id`	INT	NULL
+);
+
+CREATE TABLE `TRAINING_HISTORY` (
+	`training_id`	INT	NULL,
+	`employee_id`	INT	NULL,
+	`history_id`	INT	NULL,
+	`completion_status`	VARCHAR(50)	NULL
+);
+
+CREATE TABLE `LEAVE` (
+	`employee_id`	INT	NULL,
+	`dept_id`	INT	NULL,
+	`leave_id`	INT	NULL,
+	`leave_type`	VARCHAR(50)	NULL,
+	`start_date`	DATE	NULL,
+	`end_date`	DATE	NULL
+);
+
+CREATE TABLE `DEPARTMENT` (
+	`dept_id`	INT	NULL,
+	`dept_name`	VARCHAR(100)	NULL,
+	`parent_dept_id`	INT	NULL,
+	`manager_id`	INT	NULL
+);
+
+CREATE TABLE `EMPLOYEE` (
+	`employee_id`	INT	NULL,
+	`dept_id`	INT	NULL,
+	`job_id`	INT	NULL,
+	`name`	VARCHAR(100)	NULL,
+	`hire_date`	DATE	NULL,
+	`status`	VARCHAR(50)	NULL
+);
+
+CREATE TABLE `TRAINING` (
+	`training_id`	INT	NULL,
+	`title`	VARCHAR(100)	NULL,
+	`start_date`	DATE	NULL,
+	`end_date`	DATE	NULL,
+	`instructor`	VARCHAR(100)	NULL
+);
+
+ALTER TABLE `ROLE` ADD CONSTRAINT `PK_ROLE` PRIMARY KEY (
+	`employee_id`
+);
+
+ALTER TABLE `PERFORMANCE` ADD CONSTRAINT `PK_PERFORMANCE` PRIMARY KEY (
+	`employee_id`
+);
+
+ALTER TABLE `JOB` ADD CONSTRAINT `PK_JOB` PRIMARY KEY (
+	`dept_id`
+);
+
+ALTER TABLE `ATTENDANCE` ADD CONSTRAINT `PK_ATTENDANCE` PRIMARY KEY (
+	`employee_id`,
+	`dept_id`
+);
+
+ALTER TABLE `SALARY_HISTORY` ADD CONSTRAINT `PK_SALARY_HISTORY` PRIMARY KEY (
+	`employee_id`,
+	`dept_id`
+);
+
+ALTER TABLE `PAYROLL` ADD CONSTRAINT `PK_PAYROLL` PRIMARY KEY (
+	`employee_id`,
+	`dept_id`
+);
+
+ALTER TABLE `USER_ACCOUNT` ADD CONSTRAINT `PK_USER_ACCOUNT` PRIMARY KEY (
+	`employee_id`
+);
+
+ALTER TABLE `TRAINING_HISTORY` ADD CONSTRAINT `PK_TRAINING_HISTORY` PRIMARY KEY (
+	`training_id`,
+	`employee_id`
+);
+
+ALTER TABLE `LEAVE` ADD CONSTRAINT `PK_LEAVE` PRIMARY KEY (
+	`employee_id`,
+	`dept_id`
+);
+
+ALTER TABLE `DEPARTMENT` ADD CONSTRAINT `PK_DEPARTMENT` PRIMARY KEY (
+	`dept_id`
+);
+
+ALTER TABLE `EMPLOYEE` ADD CONSTRAINT `PK_EMPLOYEE` PRIMARY KEY (
+	`employee_id`,
+	`dept_id`
+);
+
+ALTER TABLE `TRAINING` ADD CONSTRAINT `PK_TRAINING` PRIMARY KEY (
+	`training_id`
+);
+
+ALTER TABLE `ROLE` ADD CONSTRAINT `FK_EMPLOYEE_TO_ROLE_1` FOREIGN KEY (
+	`employee_id`
+)
+REFERENCES `EMPLOYEE` (
+	`employee_id`
+);
+
+ALTER TABLE `PERFORMANCE` ADD CONSTRAINT `FK_EMPLOYEE_TO_PERFORMANCE_1` FOREIGN KEY (
+	`employee_id`
+)
+REFERENCES `EMPLOYEE` (
+	`employee_id`
+);
+
+ALTER TABLE `JOB` ADD CONSTRAINT `FK_DEPARTMENT_TO_JOB_1` FOREIGN KEY (
+	`dept_id`
+)
+REFERENCES `DEPARTMENT` (
+	`dept_id`
+);
+
+ALTER TABLE `ATTENDANCE` ADD CONSTRAINT `FK_EMPLOYEE_TO_ATTENDANCE_1` FOREIGN KEY (
+	`employee_id`
+)
+REFERENCES `EMPLOYEE` (
+	`employee_id`
+);
+
+ALTER TABLE `ATTENDANCE` ADD CONSTRAINT `FK_EMPLOYEE_TO_ATTENDANCE_2` FOREIGN KEY (
+	`dept_id`
+)
+REFERENCES `EMPLOYEE` (
+	`dept_id`
+);
+
+ALTER TABLE `SALARY_HISTORY` ADD CONSTRAINT `FK_PAYROLL_TO_SALARY_HISTORY_1` FOREIGN KEY (
+	`employee_id`
+)
+REFERENCES `PAYROLL` (
+	`employee_id`
+);
+
+ALTER TABLE `SALARY_HISTORY` ADD CONSTRAINT `FK_PAYROLL_TO_SALARY_HISTORY_2` FOREIGN KEY (
+	`dept_id`
+)
+REFERENCES `PAYROLL` (
+	`dept_id`
+);
+
+ALTER TABLE `PAYROLL` ADD CONSTRAINT `FK_EMPLOYEE_TO_PAYROLL_1` FOREIGN KEY (
+	`employee_id`
+)
+REFERENCES `EMPLOYEE` (
+	`employee_id`
+);
+
+ALTER TABLE `PAYROLL` ADD CONSTRAINT `FK_EMPLOYEE_TO_PAYROLL_2` FOREIGN KEY (
+	`dept_id`
+)
+REFERENCES `EMPLOYEE` (
+	`dept_id`
+);
+
+ALTER TABLE `USER_ACCOUNT` ADD CONSTRAINT `FK_ROLE_TO_USER_ACCOUNT_1` FOREIGN KEY (
+	`employee_id`
+)
+REFERENCES `ROLE` (
+	`employee_id`
+);
+
+ALTER TABLE `TRAINING_HISTORY` ADD CONSTRAINT `FK_PERFORMANCE_TO_TRAINING_HISTORY_1` FOREIGN KEY (
+	`employee_id`
+)
+REFERENCES `PERFORMANCE` (
+	`employee_id`
+);
+
+ALTER TABLE `LEAVE` ADD CONSTRAINT `FK_ATTENDANCE_TO_LEAVE_1` FOREIGN KEY (
+	`employee_id`
+)
+REFERENCES `ATTENDANCE` (
+	`employee_id`
+);
+
+ALTER TABLE `LEAVE` ADD CONSTRAINT `FK_ATTENDANCE_TO_LEAVE_2` FOREIGN KEY (
+	`dept_id`
+)
+REFERENCES `ATTENDANCE` (
+	`dept_id`
+);
+
+ALTER TABLE `DEPARTMENT` ADD CONSTRAINT `FK_EMPLOYEE_TO_DEPARTMENT_1` FOREIGN KEY (
+	`dept_id`
+)
+REFERENCES `EMPLOYEE` (
+	`dept_id`
+);
+
+ALTER TABLE `TRAINING` ADD CONSTRAINT `FK_TRAINING_HISTORY_TO_TRAINING_1` FOREIGN KEY (
+	`training_id`
+)
+REFERENCES `TRAINING_HISTORY` (
+	`training_id`
+);
+
