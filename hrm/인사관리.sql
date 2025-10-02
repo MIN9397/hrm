@@ -1,4 +1,6 @@
-﻿CREATE TABLE `ROLE` (
+﻿create database hrmdb default character set UTF8; 
+
+CREATE TABLE `ROLE` (
 	`employee_id`	INT	NULL,
 	`role_id`	INT	NULL,
 	`role_name`	VARCHAR(100)	NULL
