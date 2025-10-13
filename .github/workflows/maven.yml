@@ -49,11 +49,11 @@ jobs:
         ssh -i ec2-key.pem -o StrictHostKeyChecking=no \
         ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
           echo '🛑 기존 실행 중인 애플리케이션 종료 중...'
-          pids=\$(pgrep -f app.jar | grep -v $$ | grep -v \$PPID | tr '\n' ' ')
+          pids=\$(pgrep -f app.war | grep -v $$ | grep -v \$PPID | tr '\n' ' ')
           echo \"pid : \$pids\"
           if [ -n \"\$pids\" ]; then
             echo \"Would terminate PIDs: \$pids\"
-            kill $pids
+            sudo kill $pids
             echo '프로세스 종료'
           else
             echo '프로세스 없음'
