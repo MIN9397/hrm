@@ -25,7 +25,7 @@ public class SecurityConfig {
 		System.out.println("=================   SecurityFilterChain");
 		http
 			.authorizeHttpRequests((authorize) -> authorize
-				.requestMatchers(".well-known/**", "/login", "/", "/error").permitAll()
+				.requestMatchers("/.well-known/**", "/login", "/", "/error").permitAll()
 				//.requestMatchers("/admin/**").hasRole("ADMIN")
 				//.requestMatchers("/user/**").hasRole("USER")
 				.anyRequest().permitAll()

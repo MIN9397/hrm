@@ -77,7 +77,7 @@
       <a href="#">사원 관리</a>
       <a href="#">부서 관리</a>
       <a href="/list">직급 관리</a>
-      <a href="/notice">근태 관리</a> 
+      <a href="/notice">근태 관리❤️</a> 
       <a href="/qna">급여 관리</a>
       <a href="#">Location</a>
     </nav>
