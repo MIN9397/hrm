@@ -28,9 +28,51 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      working-directory: ./hrm
-      run: mvn -DskipTests clean package 
-
+      run: mvn -B package -DskipTests --file hrm/pom.xml
+      
+    # pem 파일 만들기
+    - name: EC2서버 키 파일 생성
+      run: |
+        echo "${{ secrets.EC2_KEY }}" > ec2-key.pem
+        chmod 400 ec2-key.pem
+        
+    # AWS에 JAR파일 저장
+    - name: 패키징파일을 EC2 서버로 복사
+      run: |
+        scp -i ec2-key.pem -o StrictHostKeyChecking=no \
+        hrm/target/*.war \
+        ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/app.war
+    
+    # 실행중인 프로세스 종료
+    - name: 실행중인 프로세서(app.jar) 종료
+      run: |
+        ssh -i ec2-key.pem -o StrictHostKeyChecking=no \
+        ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+          echo '🛑 기존 실행 중인 애플리케이션 종료 중...'
+          pids=\$(pgrep -f app.jar | grep -v $$ | grep -v \$PPID | tr '\n' ' ')
+          echo \"pid : \$pids\"
+          if [ -n \"\$pids\" ]; then
+            echo \"Would terminate PIDs: \$pids\"
+            kill $pids
+            echo '프로세스 종료'
+          else
+            echo '프로세스 없음'
+          fi
+        "
+    
+    # EC2에서 jar파일 실행
+    - name: EC2 서버에서 app.jar 실행
+      run: |
+        ssh -i ec2-key.pem -o StrictHostKeyChecking=no \
+        ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+          echo '🚀 새 애플리케이션 시작...'
+          sudo nohup env DB_HOST=database-1.cruo0g86aimn.ap-northeast-2.rds.amazonaws.com \
+          DB_PORT=3306 \
+          DB_NAME=hrmdb \
+          DB_USER=admin \
+          DB_PASSWORD=fpdlfrjs12# \
+          java -jar /home/${{ secrets.EC2_USER }}/app.war > app.log 2>&1 & "
+        
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
-    - name: Update dependency graph
-      uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
+    #- name: Update dependency graph
+    #  uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
