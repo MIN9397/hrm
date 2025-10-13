@@ -71,7 +71,7 @@ jobs:
           DB_NAME=hrmdb \
           DB_USER=admin \ 
           DB_PASSWORD=fpdlfrjs12# \
-          java -jar /home/${{ secrets.EC2_USER }}/app.jar > app.log 2>&1 & "
+          java -jar /home/${{ secrets.EC2_USER }}/app.war > app.log 2>&1 & "
         
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
