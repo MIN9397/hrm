@@ -18,15 +18,24 @@ public class CustomUserDetailsService implements UserDetailsService{
 	
 	@Override
 	public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
-		System.out.println(id);
-		// 데이터 베이스로 부터 사용자의 정보를 조회
-		UserDto u = mapper.findById(id);
-		// 사용자 권한 조회
-		List<RoleDto> authorities = mapper.findAuthoritiesByUsername(id);
-		// 사용자 권한 세팅
-		u.setAuthorities(authorities);
+		System.out.println("============ 로그인 : " + id );
+		// 사번|id로 전달된 파라메터를 분리
+		String[] userInfo = id.split("\\|");
 		
-		System.out.println("=================" + u);
+		String emp_id = userInfo[0];
+		String user_id = userInfo[1];
+		System.out.println("============ emp_id " + emp_id );
+		System.out.println("============ user_id " + user_id );
+		
+		// 데이터 베이스로 부터 사용자의 정보를 조회
+		UserDto u = mapper.findById(emp_id, user_id);
+		u.setId(id);
+		// 사용자 권한 조회
+		List<RoleDto> roles = mapper.findAuthoritiesByUsername(emp_id);
+		// 사용자 권한 세팅
+		u.setRoles(roles);
+		
+		System.out.println("============ 로그인사용자 : " + u);
 		
 		/*
 		UserDetails userDetails = User.builder()

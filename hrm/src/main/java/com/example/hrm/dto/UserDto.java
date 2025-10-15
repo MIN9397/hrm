@@ -11,26 +11,24 @@ import lombok.Data;
 
 @Data
 public class UserDto implements UserDetails, CredentialsContainer {
-
 	private String id;
-	private String pw;
-	private String empno;
+	private String user_id;
+	private String password;
+	private String employee_id;
 	
-//	private String username;
-//	private String password;
 	private int enable;
 	
-	private List<RoleDto> authorities;
+	private List<RoleDto> roles;
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return authorities;
+		return roles;
 	}
 
 	@Override
 	public String getPassword() {
 		// TODO Auto-generated method stub
-		return pw;
+		return password;
 	}
 
 	@Override
@@ -43,7 +41,7 @@ public class UserDto implements UserDetails, CredentialsContainer {
 	// CredentialsContainer를 구현 함으로써 사용자의 민감한 정보를 제거 할수 있다!
 	@Override
 	public void eraseCredentials() {
-		this.pw = "";
+		this.password = "";
 		
 	}
 

@@ -7,11 +7,12 @@ import lombok.Data;
 @Data
 public class RoleDto implements GrantedAuthority{
 
-	private String authority;
+	private String role_id;
+	private String role_name;
 	
 	@Override
 	public String getAuthority() {
-		return authority;
+		return role_name;
 	}
 
 }
