@@ -15,12 +15,16 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.example.hrm.config.service.AttendanceService;
+import com.example.hrm.config.service.DepartmentService;
 import com.example.hrm.config.service.VacationService;
 import com.example.hrm.dto.AttendanceDto;
+import com.example.hrm.dto.DepartmentDto;
 import com.example.hrm.dto.VacationDto;
 
 
@@ -31,6 +35,7 @@ public class AttendanceController {
 
 	private final AttendanceService service;
 	private final VacationService vacationService;
+	private final DepartmentService departmentService;
 	
 	@GetMapping("/attendance/view")
 	public String viewAttendancePage() {
@@ -150,6 +155,32 @@ public class AttendanceController {
         return events;
 
     }
+	@GetMapping("/vacation/list")
+	public String viewVacationList(@RequestParam(required = false) Integer employeeId, Model model) {
+
+	    // 값이 없을 경우 대비
+	    if (employeeId == null) {
+	        model.addAttribute("error", "직원 ID가 입력되지 않았습니다.");
+	        return "/hrm/vacation";
+	    }
+
+	    List<VacationDto> vacations = vacationService.getVacationList(employeeId);
+	    model.addAttribute("employeeId", employeeId);
+	    model.addAttribute("vacations", vacations);
+	    return "/hrm/vacation";
+	}
+
+	
+	
+
+    @GetMapping("/api/departments")
+    @ResponseBody
+    public List<DepartmentDto> getDepartments() {
+    	System.out.println("test:"+departmentService.getAllDepartments());
+        return departmentService.getAllDepartments();  // or mock data for now
+    }
+	
+
 
 	
 }

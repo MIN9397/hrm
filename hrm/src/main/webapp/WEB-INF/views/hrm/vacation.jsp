@@ -8,72 +8,12 @@
 	<meta name="_csrf_header" content="${_csrf.headerName}"/>
     
     <title>휴가 등록</title>
-    <style>
-        body { font-family: "Pretendard", sans-serif; margin: 40px; background: #fafafa; }
-        h2 { text-align: center; }
-        form {
-            width: 400px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        label, input, select {
-            display: block;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-        button {
-            padding: 8px 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        table {
-            margin: 30px auto;
-            width: 80%;
-            border-collapse: collapse;
-            background: white;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-        td form {
-		    display: flex;
-		    justify-content: center;
-		    align-items: center;
-		    margin: 0; /* 여백 제거 */
-		    padding: 0;
-		    height: 100%;
-		}
-		
-		td form button {
-		    padding: 6px 12px;
-		    font-size: 14px;
-		    border-radius: 4px;
-		    border: none;
-		    background-color: #007bff;
-		    color: white;
-		    cursor: pointer;
-		}
-		
-		td form button:hover {
-		    background-color: #0056b3;
-		}
-        
-    </style>
+    <link rel="stylesheet" href="/hrm/css/attendance/vacation.css">
 </head>
 <body>
-
+<%@include file="/hrm/side.jsp" %>
+<div class="layout">
+        <div class="content">
 <h2>휴가 등록</h2>
 
 <form method="post" action="/vacation/save">
@@ -98,7 +38,22 @@
 
     <button type="submit">휴가 등록</button>
 </form>
+	<div style="margin-top:10px;">
+     <button type="button" onclick="viewVacationList()">휴가 목록 보기</button>
+	</div>
+	
+	<script>
+function viewVacationList() {
+    const empId = document.getElementById('employeeId').value;
+    if (!empId) {
+        alert("직원 ID를 입력하세요!");
+        return;
+    }
+    window.location.href = '/vacation/list?employeeId=' + empId;
+}
 
+</script>
+	
 <c:if test="${not empty vacations}">
     <h3 style="text-align:center;">휴가 목록</h3>
     <table>
@@ -134,6 +89,9 @@
         </tbody>
     </table>
 </c:if>
+ </div>
+    </div>
+    <!-- ✅ 조회 버튼 동작 스크립트 -->
 
 </body>
 </html>

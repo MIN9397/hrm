@@ -1,5 +1,6 @@
 package com.example.hrm.config.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ public class VacationService {
     private final AttendanceMapper vacationMapper;
 
     public List<VacationDto> getVacationList(Integer employeeId) {
+    	if (employeeId == null) { return new ArrayList<>();}
         return vacationMapper.selectVacationByEmployeeId(employeeId);
     }
 

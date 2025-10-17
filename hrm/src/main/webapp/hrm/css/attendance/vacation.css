@@ -1,0 +1,78 @@
+@charset "UTF-8";
+	  body { font-family: "Pretendard", sans-serif; 
+			  margin: 0; 
+			  background: #fafafa;
+			  }
+			  /* 사이드바와 콘텐츠 구분 */
+		.layout {
+		  display: flex;
+		}
+		
+		/* 메인 콘텐츠 */
+		.content {
+		  flex: 1;
+		  padding: 40px;
+		  text-align: center;
+		}
+        h2 { text-align: center; 
+        	margin-bottom: 20px;
+        }
+        form {
+            width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        label, input, select {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        table {
+            margin: 30px auto;
+            width: 80%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        td form {
+		    display: flex;
+		    justify-content: center;
+		    align-items: center;
+		    margin: 0; /* 여백 제거 */
+		    padding: 0;
+		    height: 100%;
+		    border-radius: 12px;
+		}
+		
+		td form button {
+		    padding: 6px 12px;
+		    font-size: 14px;
+		    border-radius: 4px;
+		    border: none;
+		    background-color: #007bff;
+		    color: white;
+		    cursor: pointer;
+		}
+		
+		td form button:hover {
+		    background-color: #0056b3;
+		}

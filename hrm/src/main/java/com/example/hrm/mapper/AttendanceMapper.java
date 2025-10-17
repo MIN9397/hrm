@@ -12,12 +12,12 @@ import com.example.hrm.dto.VacationDto;
 @Mapper
 public interface AttendanceMapper {
 
-	List<AttendanceDto> getAttendanceByEmployeeId(int employeeId);
+	List<AttendanceDto> getAttendanceByEmployeeId(Integer employeeId);
 	
 	void insertVacation(VacationDto dto);
 
     // 직원별 휴가 목록 조회
-    List<VacationDto> selectVacationByEmployeeId(int employeeId);
+    List<VacationDto> selectVacationByEmployeeId(Integer employeeId);
 	
 	List<AttendanceDto> getAllAttendance();
 	

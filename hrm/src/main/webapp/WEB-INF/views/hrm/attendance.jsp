@@ -10,44 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/main.min.css" rel="stylesheet"/>
 
-    <style>
-        body {
-            font-family: "Pretendard", sans-serif;
-            margin: 40px;
-            background: #fafafa;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        form {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        input, button {
-            padding: 6px 10px;
-            font-size: 15px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        #calendar {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-    </style>
-
+<link rel="stylesheet" href="/hrm/css/attendance/attendance.css" >
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const calendarEl = document.getElementById("calendar");
@@ -118,15 +81,20 @@
 </head>
 
 <body>
+		<%@include file="/hrm/side.jsp" %>
+	<div class="layout">
+	<div class="content">
     <h2>근태 관리 시스템</h2>
 
     <!-- form 대신 비동기 버튼으로 처리 -->
-    <div style="text-align:center; margin-bottom:30px;">
+    <div class="form-area">
         <label>직원 ID: </label>
         <input type="number" id="employeeId" name="employeeId" required value="${employeeId}"/>
         <button type="button" id="searchBtn">조회</button>
     </div>
 
     <div id="calendar"></div>
+    </div>
+    </div>
 </body>
 </html>

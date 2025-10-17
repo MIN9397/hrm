@@ -27,6 +27,18 @@ public class HelloController {
 	private String main() {
 		return "/hrm/main";
 	}
+	@GetMapping("/vacation")
+	private String vacation() {
+		return "/hrm/vacation";
+	}
+	@GetMapping("/attendance")
+	private String attendance() {
+		return "/hrm/attendance";
+	}
+	@GetMapping("/department")
+	private String department() {
+		return "/hrm/department";
+	}
 	
 	@GetMapping("/login")
 	private String login() {
