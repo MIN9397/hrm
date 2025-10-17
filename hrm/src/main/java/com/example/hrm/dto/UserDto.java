@@ -11,38 +11,55 @@ import lombok.Data;
 
 @Data
 public class UserDto implements UserDetails, CredentialsContainer {
-	private String id;
-	private String user_id;
-	private String password;
-	private String employee_id;
-	
-	private int enable;
-	
+    private String employee_id;    // 내부 식별용 (기존)
+    private String employee_code;  // 로그인 ID
+    private String username;       // 표시용 이름
+    private String password;
+    private boolean enabled;
+    private String job_id;
+    private String dept_id;
+    private String role_id;
+
 	private List<RoleDto> roles;
-	
+
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return roles;
+		return roles != null ? roles : java.util.Collections.emptyList();
 	}
 
 	@Override
 	public String getPassword() {
-		// TODO Auto-generated method stub
 		return password;
 	}
 
 	@Override
 	public String getUsername() {
-		// TODO Auto-generated method stub
-		return id;
+		// 인증에 사용하는 식별자
+		return employee_code;
 	}
 
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
-	// CredentialsContainer를 구현 함으로써 사용자의 민감한 정보를 제거 할수 있다!
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
 	@Override
 	public void eraseCredentials() {
 		this.password = "";
-		
 	}
-
 }

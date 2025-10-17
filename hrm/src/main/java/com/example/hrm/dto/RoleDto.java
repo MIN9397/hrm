@@ -5,14 +5,12 @@ import org.springframework.security.core.GrantedAuthority;
 import lombok.Data;
 
 @Data
-public class RoleDto implements GrantedAuthority{
+public class RoleDto implements GrantedAuthority {
+    private String role_id;
+    private String role_name;
 
-	private String role_id;
-	private String role_name;
-	
-	@Override
-	public String getAuthority() {
-		return role_name;
-	}
-
+    @Override
+    public String getAuthority() {
+        return role_name; // 예: "ROLE_ADMIN"
+    }
 }

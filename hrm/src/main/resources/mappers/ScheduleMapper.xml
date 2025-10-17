@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.calendar.mapper.IScheduleMapper">
+
+    <select id="selectScheduleList" resultType="com.example.calendar.vo.ScheduleVO">
+        SELECT *   FROM schedule
+    </select>
+
+    <insert id="insertSchedule">
+        INSERT INTO schedule (SCH_TITLE,
+        SCH_START,
+        SCH_END,
+        SCH_BACKGROUNDCOLOR,
+        SCH_TEXTCOLOR,
+        SCH_ALLDAY
+        ) VALUES (
+        #{title},
+        #{start},
+        #{end},
+        #{backgroundColor},
+        #{textColor},
+        #{allDayStatus}
+        )
+    </insert>
+
+</mapper>

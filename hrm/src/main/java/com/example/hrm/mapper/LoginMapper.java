@@ -3,19 +3,28 @@ package com.example.hrm.mapper;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import com.example.hrm.dto.RoleDto;
 import com.example.hrm.dto.UserDto;
 
+@Mapper
 public interface LoginMapper {
-	@Select("select user_id, password, employee_id, enabled from user_account where employee_id=#{employee_id} and user_id = #{user_id}")
-	UserDto findById(@Param(value = "employee_id") String employee_id,@Param(value = "user_id")  String user_id);
 
-	@Select("select ur.role_id, role_name from user_role ur, role r where ur.role_id = r.role_id and  employee_id = 1")
-	List<RoleDto> findAuthoritiesByUsername(String username);
-	
-	@Insert("insert into users values (#{username}, #{password}, #{enable})")
-	int insert(UserDto user);
+    @Select("""
+        SELECT employee_id, employee_code, username, password, enabled, job_id, dept_id, role_id
+        FROM user_account
+        WHERE employee_code = #{employee_code}
+    """)
+    UserDto findByEmployeeCode(@Param("employee_code") String employee_code);
+
+    @Select("""
+        SELECT r.role_id, r.role_name
+        FROM role r
+        JOIN user_account ur ON ur.role_id = r.role_id
+        WHERE ur.employee_code = #{employee_code}
+    """)
+    List<RoleDto> findAuthoritiesByEmployeeCode(@Param("employee_code") String employee_code);
 }

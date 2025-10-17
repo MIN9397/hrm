@@ -99,7 +99,7 @@
       <a href="/main"><img src="/img/logo.png" alt="로고" /></a>
     </div>
     <nav class="nav">
-      <a href="#" onclick="showSubmenu('person')">사원 관리</a>
+      <a href="/employee/manage" onclick="showSubmenu('person')">사원 관리</a>
       <a href="#" onclick="showSubmenu('dept')">부서 관리</a>
       <a href="#" onclick="showSubmenu('job')">직급 관리</a>
       <a href="#" onclick="showSubmenu('attend')">근태 관리</a>
@@ -109,9 +109,9 @@
 
     <!-- 우측 상단 메뉴 -->
     <div class="user-menu">
-      <a href="/mypage">홈(Home)</a>
+      <a href="/main">홈(Home)</a>
       <a href="/">로그인</a>
-      <a href="/register">로그아웃</a>
+      <a href="/">로그아웃</a>
       <a href="/re_data">마이프로필</a>
     </div>
   </header>

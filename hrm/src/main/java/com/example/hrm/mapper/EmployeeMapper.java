@@ -1,0 +1,76 @@
+package com.example.hrm.mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+
+import com.example.hrm.dto.EmployeeDto;
+
+@Mapper
+public interface EmployeeMapper {
+
+    // user_account를 기준으로 job, department 조인하여 직급/부서명과 날짜/가족/활성화 여부를 함께 조회
+    @Select("""
+        SELECT
+            ua.employee_id AS employeeId,
+            ua.username,
+            ua.job_id AS jobId,
+            ua.dept_id AS deptId,
+            j.job_title AS jobTitle,
+            d.dept_name AS deptName,
+            ua.s_date     AS hireDate,
+            ua.f_date     AS retireDate,
+            ua.dependents AS dependents,
+            ua.children   AS children,
+            ua.enabled    AS enabled
+        FROM user_account ua
+        LEFT JOIN job j ON j.job_id = ua.job_id
+        LEFT JOIN department d ON d.dept_id = ua.dept_id
+        ORDER BY ua.employee_id
+    """)
+    List<EmployeeDto> findAllEmployees();
+
+    // 선택한 부서에 대해 다음 사번(코드) 생성 (예: HR-001, HR-002 ...)
+    @Select("""
+        SELECT CONCAT(d.dept_code, '-', LPAD(COALESCE(MAX(CAST(SUBSTRING_INDEX(ua.employee_code,'-',-1) AS UNSIGNED)),0)+1, 3, '0'))
+        FROM department d
+        LEFT JOIN user_account ua ON ua.dept_id = d.dept_id
+        WHERE d.dept_id = #{deptId}
+    """)
+    String generateEmployeeCode(@Param("deptId") String deptId);
+
+    @Insert("""
+        INSERT INTO user_account (
+            employee_code, username, password, enabled,
+            job_id, dept_id, role_id,
+            salary_year, s_date, dependents, children
+        ) VALUES (
+            #{employeeCode}, #{username}, #{encodedPassword}, 1,
+            #{jobId}, #{deptId}, #{roleId},
+            #{salaryYear}, #{sDate}, #{dependents}, #{children}
+        )
+    """)
+    int insertEmployee(
+        @Param("employeeCode") String employeeCode,
+        @Param("username") String username,
+        @Param("encodedPassword") String encodedPassword,
+        @Param("jobId") String jobId,
+        @Param("deptId") String deptId,
+        @Param("roleId") String roleId,
+        @Param("salaryYear") Integer salaryYear,
+        @Param("sDate") java.sql.Date sDate,
+        @Param("dependents") Integer dependents,
+        @Param("children") Integer children
+    );
+
+    @Update("""
+        UPDATE user_account
+        SET enabled = CASE WHEN enabled = 1 THEN 0 ELSE 1 END
+        WHERE employee_id = #{employeeId}
+    """)
+    int toggleEnabled(@Param("employeeId") String employeeId);
+}

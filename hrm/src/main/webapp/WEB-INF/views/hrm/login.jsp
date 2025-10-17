@@ -138,9 +138,10 @@
         관리자는 프로그램에서는 모든 기능을 정상적으로 사용할 수 있습니다.
       </p>
     </div>
+
     <!-- 오른쪽 로그인 폼 -->
     <div class="right">
-	<form action="/login" method="post" name="loginForm">
+	<form action="/main" method="post" name="loginForm">
       <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 	  
       <h1>내맘대로 H.R.M</h1>
@@ -153,35 +154,19 @@
 		  </c:if>
       </div>
       <div class="form-group">
-       	<input type="text" name="employee_id" id="employee_id" placeholder="사원번호 입력하세요." value="1">
+       	<input type="text" name="employee_code" id="employee_code" placeholder="사원코드 입력하세요.">
       </div>
       <div class="form-group">
-        <input type="text" name="user_id" id="user_id" placeholder="이름을 입력하세요." value="user">
+		<input type="password" name="password" id="password" placeholder="password">
       </div>
       <div class="form-group">
-		<input type="text" name="password" id="password" placeholder="password"  value="password">
-      </div>
-      <div class="form-group">
-      	<input type="hidden" name="id" id="id" value="">
-      	<button class="btn" type="button" id="loginBtn">로그인</button>
+      	<button class="btn" type="submit" id="loginBtn">로그인</button>
       </div>
       <div class="phone">📞 031-123-4567</div>
       
 	</form>
     </div>
   </div>
-  
-  <script>
-  	window.onload=()=>{
-  		loginBtn.addEventListener('click', ()=>{
-  			// 사용자 정보를 넘길때 아이디와 사번을 함께 전달 합니다
-  			// CustomUserDetailsService.loadUserByUsername()을 사용하기 위해
-  			let user = document.querySelector("#employee_id").value + "|" + document.querySelector("#user_id").value;
-  			document.querySelector("#id").value = user;
-  			loginForm.submit();
-  		})
-  	}
-  
-  </script>
+
 </body>
 </html>
