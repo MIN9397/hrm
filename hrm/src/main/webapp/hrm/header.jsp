@@ -74,7 +74,7 @@
     </div>
     
     <nav class="nav">
-      <a href="#">사원 관리</a>
+      <a href="/employee/manage">사원 관리</a>
       <a href="#">부서 관리</a>
       <a href="/list">직급 관리</a>
       <a href="/notice">근태 관리</a> 

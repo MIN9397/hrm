@@ -1,9 +1,16 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
+<link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet' />
+<link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css' rel='stylesheet' />
+<link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/main.min.css' rel='stylesheet' />
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/bootstrap5@6.1.19/index.global.min.js'></script>
 <title>Insert title here</title>
 <style>
 
@@ -88,12 +95,74 @@
   box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
   padding: 20px;
 }
-
+.calendar {
+padding: 20px;
+flex: 6; /* 60% */
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 2px 2px 12px rgba(0,0,0,0.1);}
 
 
 
 </style>
+<script>
 
+      document.addEventListener('DOMContentLoaded', function() {
+        let calendarEl = document.getElementById('calendar');
+
+        let headerToolbar = {
+          left: 'prevYear,prev,next,nextYear today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+        };
+
+        let calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'dayGridMonth',
+          themeSystem: 'bootstrap5',
+          locale: 'ko',
+          timezone: 'local',
+          headerToolbar: headerToolbar,
+          editable: true,
+          dayMaxEvents: true,
+          nowIndicator: true,
+          selectable: true,
+          unselectAuto: true,
+
+          //일정 목록 불러오기
+          events: "/scheduleList.do",
+
+          //날짜 클릭 시
+          dateClick: function(info) {
+            let title = prompt("일정 제목을 입력하세요:");
+            if (title) {
+              let eventData = {
+                title: title,
+                start: info.dateStr,
+                end: info.dateStr,
+                allDayStatus: 'TRUE' // 하루종일 일정
+              };
+
+              fetch("/scheduleInsert.do", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(eventData)
+              })
+              .then(res => {
+                if (res.ok) {
+                  alert("일정이 등록되었습니다!");
+                  calendar.refetchEvents(); // 새로고침 없이 일정 갱신
+                } else {
+                  alert("등록 실패!");
+                }
+              });
+            }
+          }
+
+
+        });
+        calendar.render();
+        });
+</script>
 
 
 </head>
@@ -151,6 +220,10 @@
         <!-- etc -->
       </ul>
     </div>
+  </div>
+  <!-- calender -->
+  <div class="calendar">
+  <div id='calendar'></div>
   </div>
 </div>
 

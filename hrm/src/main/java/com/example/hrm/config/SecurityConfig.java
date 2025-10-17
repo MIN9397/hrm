@@ -1,18 +1,20 @@
 package com.example.hrm.config;
 
-import javax.sql.DataSource;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+
+// Authentication failure type checks
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.example.hrm.config.service.CustomUserDetailsService;
 
@@ -31,14 +33,32 @@ public class SecurityConfig {
 				.anyRequest().permitAll()
 			)
 			//.httpBasic(Customizer.withDefaults())
-			.formLogin(from -> from
+			.formLogin(form -> form
 					.loginPage("/login")
-					.usernameParameter("id")
-					.passwordParameter("pw")
+					.loginProcessingUrl("/main")
+					.usernameParameter("employee_code")
+					.passwordParameter("password")
 					.permitAll()
-					//.successForwardUrl("/main") 		// 로그인 성공시 forward
-					.defaultSuccessUrl("/login-success", true)	// /main으로 redirect
-					.failureUrl("/login?error").permitAll()// 로그인 실패시 이동
+                    .defaultSuccessUrl("/main",true)
+					.failureHandler((request, response, exception) -> {
+						String reason;
+						if (exception instanceof org.springframework.security.authentication.BadCredentialsException) {
+							reason = "bad_credentials";
+						} else if (exception instanceof org.springframework.security.authentication.DisabledException) {
+							reason = "disabled";
+						} else if (exception instanceof org.springframework.security.authentication.LockedException) {
+							reason = "locked";
+						} else if (exception instanceof org.springframework.security.authentication.AccountExpiredException) {
+							reason = "account_expired";
+						} else if (exception instanceof org.springframework.security.authentication.CredentialsExpiredException) {
+							reason = "credentials_expired";
+						} else if (exception instanceof org.springframework.security.core.userdetails.UsernameNotFoundException) {
+							reason = "user_not_found";
+						} else {
+							reason = "auth_error";
+						}
+						response.sendRedirect("/login?error=" + reason);
+					})
 			)
 			// ★로그아웃 설정
 			.logout(logout -> logout
