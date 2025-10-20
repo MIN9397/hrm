@@ -30,6 +30,8 @@ body {
     width: 100%;
   }
 }
+.clickable-row { cursor: pointer; }
+.clickable-row:hover { background-color: rgba(0, 0, 0, 0.03); }
 </style>
 </head>
 <body class="bg-light">
@@ -54,19 +56,22 @@ body {
               <th>사원 이름</th>
               <th>직급</th>
               <th>부서 이름</th>
+              <th>이메일</th>
               <th>입사일</th>
               <th>퇴사일</th>
               <th>부양가족</th>
               <th>자녀 수</th>
               <th>활성화 여부</th>
+              <th>퇴사</th>
             </tr>
           </thead>
           <tbody>
             <c:forEach var="e" items="${employees}">
-              <tr>
+              <tr class="clickable-row" onclick="location.href='/employee/edit?employeeId=${e.employeeId}'">
                 <td><c:out value="${e.username}"/></td>
                 <td><c:out value="${e.jobTitle}"/></td>
                 <td><c:out value="${e.deptName}"/></td>
+                <td><c:out value="${empty e.email ? '-' : e.email}"/></td>
                 <td><c:choose>
                       <c:when test="${not empty e.hireDate}">
                         <c:out value="${e.hireDate}"/>
@@ -85,7 +90,7 @@ body {
                 <td><c:out value="${empty e.children ? '-' : e.children}"/></td>
                 <td>
                   <a href="/employee/toggle-enabled?employeeId=${e.employeeId}"
-                     class="text-decoration-none">
+                     class="text-decoration-none" onclick="event.stopPropagation();">
                     <c:choose>
                       <c:when test="${e.enabled == 1}">
                         <span class="badge bg-success">활성화</span>
@@ -96,11 +101,21 @@ body {
                     </c:choose>
                   </a>
                 </td>
+                <td>
+                  <form method="post" action="/employee/resign" class="m-0">
+                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                    <input type="hidden" name="employeeId" value="${e.employeeId}"/>
+                    <button type="submit" class="btn btn-outline-danger btn-sm"
+                            <c:if test="${e.enabled != 1}">disabled</c:if>>
+                      <i class="bi bi-person-dash"></i> 퇴사
+                    </button>
+                  </form>
+                </td>
               </tr>
             </c:forEach>
             <c:if test="${empty employees}">
               <tr>
-                <td colspan="8" class="text-center text-muted">사원 데이터가 없습니다.</td>
+                <td colspan="9" class="text-center text-muted">사원 데이터가 없습니다.</td>
               </tr>
             </c:if>
           </tbody>

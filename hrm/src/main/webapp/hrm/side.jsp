@@ -112,7 +112,7 @@
       <a href="/main">홈(Home)</a>
       <a href="/">로그인</a>
       <a href="/">로그아웃</a>
-      <a href="/re_data">마이프로필</a>
+      <a href="/mypage">마이프로필</a>
     </div>
   </header>
 

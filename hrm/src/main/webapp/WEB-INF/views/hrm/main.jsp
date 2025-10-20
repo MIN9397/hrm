@@ -40,13 +40,32 @@
 .profile-box {
   text-align: center;
   cursor: pointer;
+  padding: 20px;
+  color: inherit;
+  display: block;
 }
 
 .profile-box .profile-img {
-  width: 120px;
-  height: 120px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
-  margin-bottom: 15px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+
+.profile-box .profile-info {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.profile-box .profile-info h3,
+.profile-box .profile-info p {
+  margin: 0;
+  color: #222;
+  text-shadow: none;
 }
 
 /* 리스트 스타일 */
@@ -174,10 +193,12 @@ flex: 6; /* 60% */
   <!-- 상단 3박스 -->
   <div class="top-boxes">
     <!-- 개인 요약 프로필 -->
-    <div class="box profile-box" onclick="location.href='/profile/detail'">
-      <img src="/images/profile.png" alt="프로필 사진" class="profile-img">
-      <h3>홍길동</h3>
-      <p>사번: 123456</p>
+    <div class="box profile-box" onclick="location.href='/mypage'">
+      <img src="/mypage/profile-image?employeeId=${me.employeeId}&t=${imgVersion}" alt="프로필 사진" class="profile-img" onerror="this.src='https://via.placeholder.com/600x400?text=Profile'">
+      <div class="profile-info">
+        <h3>${empty me.username ? '로그인 사용자' : me.username}</h3>
+        <p>사번: ${me.employeeId}</p>
+      </div>
     </div>
 
     <!-- 공지사항 -->

@@ -1,5 +1,6 @@
 package com.example.hrm.mapper;
 
+import java.sql.Date;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Insert;
@@ -22,6 +23,7 @@ public interface EmployeeMapper {
             ua.dept_id AS deptId,
             j.job_title AS jobTitle,
             d.dept_name AS deptName,
+            ua.email     AS email,
             ua.s_date     AS hireDate,
             ua.f_date     AS retireDate,
             ua.dependents AS dependents,
@@ -47,11 +49,11 @@ public interface EmployeeMapper {
         INSERT INTO user_account (
             employee_code, username, password, enabled,
             job_id, dept_id, role_id,
-            salary_year, s_date, dependents, children
+            salary_year, s_date, dependents, children, email
         ) VALUES (
             #{employeeCode}, #{username}, #{encodedPassword}, 1,
             #{jobId}, #{deptId}, #{roleId},
-            #{salaryYear}, #{sDate}, #{dependents}, #{children}
+            #{salaryYear}, #{sDate}, #{dependents}, #{children}, #{email}
         )
     """)
     int insertEmployee(
@@ -62,10 +64,10 @@ public interface EmployeeMapper {
         @Param("deptId") String deptId,
         @Param("roleId") String roleId,
         @Param("salaryYear") Integer salaryYear,
-        @Param("sDate") java.sql.Date sDate,
+        @Param("sDate") Date sDate,
         @Param("dependents") Integer dependents,
-        @Param("children") Integer children
-    );
+        @Param("children") Integer children,
+        @Param("email") String email);
 
     @Update("""
         UPDATE user_account
@@ -73,4 +75,84 @@ public interface EmployeeMapper {
         WHERE employee_id = #{employeeId}
     """)
     int toggleEnabled(@Param("employeeId") String employeeId);
+
+        @Update("""
+            UPDATE user_account
+            SET f_date = CURRENT_DATE, enabled = 0
+            WHERE employee_id = #{employeeId}
+        """)
+        int resignEmployee(@Param("employeeId") String employeeId);
+
+        @Select("""
+            SELECT
+                ua.employee_id AS employeeId,
+                ua.username,
+                ua.job_id AS jobId,
+                ua.dept_id AS deptId,
+                ua.salary_year AS salaryYear,
+                ua.s_date AS hireDate,
+                ua.f_date AS retireDate,
+                ua.dependents AS dependents,
+                ua.children AS children,
+                ua.enabled AS enabled,
+                ua.email AS email,
+                j.job_title AS jobTitle,
+                d.dept_name AS deptName
+            FROM user_account ua
+            LEFT JOIN job j ON j.job_id = ua.job_id
+            LEFT JOIN department d ON d.dept_id = ua.dept_id
+            WHERE ua.employee_id = #{employeeId}
+        """)
+        EmployeeDto findEmployeeById(@Param("employeeId") String employeeId);
+
+        @Update("""
+            UPDATE user_account
+            SET email = #{email}
+            WHERE employee_id = #{employeeId}
+        """)
+        int updateEmail(@Param("employeeId") String employeeId, @Param("email") String email);
+
+        @Update("""
+            UPDATE user_account
+            SET password = #{encodedPassword}
+            WHERE employee_id = #{employeeId}
+        """)
+        int updatePassword(@Param("employeeId") String employeeId, @Param("encodedPassword") String encodedPassword);
+
+
+    @Update("""
+        UPDATE user_account SET
+            username = #{username},
+            job_id = #{jobId},
+            dept_id = #{deptId},
+            salary_year = #{salaryYear},
+            s_date = #{sDate},
+            dependents = #{dependents},
+            children = #{children},
+            email = #{email}
+        WHERE employee_id = #{employeeId}
+    """)
+    int updateEmployee(
+        @Param("employeeId") String employeeId,
+        @Param("username") String username,
+        @Param("jobId") String jobId,
+        @Param("deptId") String deptId,
+        @Param("salaryYear") Integer salaryYear,
+        @Param("sDate") Date sDate,
+        @Param("dependents") Integer dependents,
+        @Param("children") Integer children,
+        @Param("email") String email
+    );
+
+    @Select("""
+        SELECT img FROM user_account WHERE employee_id = #{employeeId}
+    """)
+    byte[] getProfileImage(@Param("employeeId") String employeeId);
+
+    @Update("""
+        UPDATE user_account
+        SET img = #{img, jdbcType=BLOB}
+        WHERE employee_id = #{employeeId}
+    """)
+    int updateProfileImage(@Param("employeeId") String employeeId, @Param("img") byte[] img);
 }
