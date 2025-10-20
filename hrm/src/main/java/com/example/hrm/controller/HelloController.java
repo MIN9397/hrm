@@ -18,6 +18,16 @@ public class HelloController {
 		return "/hrm/login";
 	}
 	
+	@GetMapping("/salarylist")
+	private String salarylist() {
+		return "/hrm/salarylist";
+	}
+	
+	@GetMapping("/va")
+	private String va() {
+		return "/hrm/va";
+	}
+	
 	@GetMapping("/test1")
 	private String test1() {
 		return "/hrm/test1";

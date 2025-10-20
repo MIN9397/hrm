@@ -102,8 +102,8 @@
       <a href="/employee/manage" onclick="showSubmenu('person')">사원 관리</a>
       <a href="#" onclick="showSubmenu('dept')">부서 관리</a>
       <a href="#" onclick="showSubmenu('job')">직급 관리</a>
-      <a href="/attendance" onclick="showSubmenu('attend')">근태 관리</a>
-      <a href="#" onclick="showSubmenu('salary')">급여 관리</a>
+      <a href="/va" onclick="showSubmenu('attend')">근태 관리❤️</a>
+      <a href="/msalary" onclick="showSubmenu('salary')">급여 관리</a>
       <a href="#" onclick="showSubmenu('location')">Location</a>
     </nav>
 
