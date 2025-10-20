@@ -11,6 +11,7 @@ public class EmployeeDto {
     private String password; // 등록 시에만 사용
     private String jobId;
     private String deptId;
+    private String email;
 
     // 조인으로 조회되는 표시용 필드
     private String jobTitle;
