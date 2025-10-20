@@ -37,7 +37,7 @@
     </div>
 
     <div class="col-lg-8">
-      <form method="post" action="/mypage/update" enctype="multipart/form-data" class="card p-3 shadow-sm">
+      <form id="mypageForm" method="post" action="/mypage/update" enctype="multipart/form-data" class="card p-3 shadow-sm">
         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
         <div class="row g-3">
           <div class="col-md-12">
@@ -74,5 +74,20 @@
   </div>
 </div>
 </div>
+
+<script>
+  // 프로필 이미지 선택 시 자동 저장
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('mypageForm');
+    const fileInput = document.querySelector('input[name="profileImage"]');
+    if (form && fileInput) {
+      fileInput.addEventListener('change', function() {
+        if (this.files && this.files.length > 0) {
+          form.submit();
+        }
+      });
+    }
+  });
+</script>
 </body>
 </html>

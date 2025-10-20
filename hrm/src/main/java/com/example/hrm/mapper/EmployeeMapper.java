@@ -151,7 +151,7 @@ public interface EmployeeMapper {
 
     @Update("""
         UPDATE user_account
-        SET img = #{img}
+        SET img = #{img, jdbcType=BLOB}
         WHERE employee_id = #{employeeId}
     """)
     int updateProfileImage(@Param("employeeId") String employeeId, @Param("img") byte[] img);

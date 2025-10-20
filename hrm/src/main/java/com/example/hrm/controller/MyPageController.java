@@ -8,6 +8,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +28,9 @@ public class MyPageController {
 
     @Autowired
     private EmployeeService employeeService;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     private final Path profileDir = Paths.get(System.getProperty("user.home"), "hrm-uploads", "profiles");
 
@@ -76,9 +81,13 @@ public class MyPageController {
             employeeService.updateMyPassword(employeeId, password);
         }
 
-        // 프로필 이미지 저장 (DB)
+        // 프로필 이미지 저장 (DB: user_account.img)
         if (profileImage != null && !profileImage.isEmpty()) {
-            employeeService.updateMyImage(employeeId, profileImage.getBytes());
+            byte[] imgBytes = profileImage.getBytes();
+            jdbcTemplate.update(
+                    "UPDATE user_account SET img = ? WHERE employee_id = ?",
+                    imgBytes, employeeId
+            );
         }
 
         return "redirect:/mypage?success=1";
@@ -94,7 +103,16 @@ public class MyPageController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        byte[] bytes = employeeService.getProfileImage(employeeId);
+        byte[] bytes;
+        try {
+            bytes = jdbcTemplate.queryForObject(
+                    "SELECT img FROM user_account WHERE employee_id = ?",
+                    (rs, rowNum) -> rs.getBytes("img"),
+                    employeeId
+            );
+        } catch (EmptyResultDataAccessException e) {
+            bytes = null;
+        }
         if (bytes == null || bytes.length == 0) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
