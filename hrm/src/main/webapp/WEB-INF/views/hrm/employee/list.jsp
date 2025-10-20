@@ -38,7 +38,7 @@ body {
 <div class="container-fluid px-0 py-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="mb-0"><i class="bi bi-people-fill me-2"></i>사원 관리</h3>
-    <sec:authorize access="principal.role_id == '2'">
+    <sec:authorize access="principal.roleId == '2'">
       <a href="/employee/register" class="btn btn-primary">
         <i class="bi bi-person-plus-fill"></i> 사원 등록
       </a>

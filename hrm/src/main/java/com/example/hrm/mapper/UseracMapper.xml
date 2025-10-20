@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.example.hrm.mapper.UseracMapper">
+  
+  	<select id="findAllUserac">
+  		select ua.username, ua.job_id, j.job_title, ua.dept_id, ua.role_id, ua.manager_id, ua.img, ua.employee_id
+  		from user_account ua
+  		left join job j on ua.job_id = j.job_id
+  		order by ua.employee_id
+  	</select>
+  </mapper>

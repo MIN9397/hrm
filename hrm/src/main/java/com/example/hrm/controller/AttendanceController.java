@@ -22,9 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.hrm.config.service.AttendanceService;
 import com.example.hrm.config.service.DepartmentService;
+import com.example.hrm.config.service.UseracService;
 import com.example.hrm.config.service.VacationService;
 import com.example.hrm.dto.AttendanceDto;
 import com.example.hrm.dto.DepartmentDto;
+import com.example.hrm.dto.UseracDto;
 import com.example.hrm.dto.VacationDto;
 
 
@@ -36,6 +38,7 @@ public class AttendanceController {
 	private final AttendanceService service;
 	private final VacationService vacationService;
 	private final DepartmentService departmentService;
+	private final UseracService useracService;
 	
 	@GetMapping("/attendance/view")
 	public String viewAttendancePage() {
@@ -178,6 +181,12 @@ public class AttendanceController {
     public List<DepartmentDto> getDepartments() {
     	System.out.println("test:"+departmentService.getAllDepartments());
         return departmentService.getAllDepartments();  // or mock data for now
+    }
+    @GetMapping("/api/userac")
+    @ResponseBody
+    public List<UseracDto> getUserac(){
+    	System.out.println("test:" + useracService.getAllUserac());
+    	return useracService.getAllUserac();
     }
 	
 

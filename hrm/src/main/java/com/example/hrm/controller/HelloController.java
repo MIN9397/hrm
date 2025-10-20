@@ -39,6 +39,10 @@ public class HelloController {
 	private String department() {
 		return "/hrm/department";
 	}
+	@GetMapping("/userac")
+	private String user() {
+		return "/hrm/userac";
+	}
 	
 	@GetMapping("/login")
 	private String login() {
