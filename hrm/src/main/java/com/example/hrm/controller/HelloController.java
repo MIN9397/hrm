@@ -29,7 +29,7 @@ public class HelloController {
 	@GetMapping("/main")
 	private String main(org.springframework.security.core.Authentication auth, org.springframework.ui.Model model) {
 		if (auth != null && auth.getPrincipal() instanceof com.example.hrm.dto.UserDto u) {
-			String employeeId = u.getEmployee_id();
+			String employeeId = u.getEmployeeId();
 			if (employeeId != null) {
 				com.example.hrm.dto.EmployeeDto me = employeeService.getEmployeeById(employeeId);
 				if (me != null) {

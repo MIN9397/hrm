@@ -118,15 +118,9 @@ public class AttendanceController {
     @GetMapping("/api/attendance/list")
     public List<Map<String, Object>> getAttendanceList(@RequestParam(required = false) Integer employeeId) {
 
-        List<AttendanceDto> attendanceList;
-
-        if (employeeId != null) {
-            attendanceList = service.getAttendance(employeeId);
-        } else {
-            // employeeId가 없을 경우 전체 조회
-            attendanceList = service.getAllAttendance();
-        }
-
+		List<AttendanceDto> attendanceList = (employeeId != null)
+                ? service.getAttendance(employeeId)
+                : service.getAllAttendance();
         List<Map<String, Object>> events = new ArrayList<>();
 
         for (AttendanceDto att : attendanceList) {

@@ -11,7 +11,7 @@
 </head>
 <body class="bg-light">
 <%@include file="/hrm/side.jsp" %>
-<sec:authorize access="principal.role_id == '2'">
+<sec:authorize access="principal.roleId == '2'">
 <div class="main-content p-0">
 <div class="container py-4">
   <h3 class="mb-3"><i class="bi bi-pencil-square me-2"></i>사원 수정</h3>
@@ -83,7 +83,7 @@
 </div>
 </div>
 </sec:authorize>
-<sec:authorize access="!(principal.role_id == '2')">
+<sec:authorize access="!(principal.roleId == '2')">
   <div class="container py-5 text-center text-muted">
     접근 권한이 없습니다.
     <div class="mt-3">

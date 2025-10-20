@@ -38,7 +38,7 @@ public class MyPageController {
         if (auth == null || auth.getPrincipal() == null) return null;
         Object p = auth.getPrincipal();
         if (p instanceof UserDto u) {
-            return u.getEmployee_id();
+            return u.getEmployeeId();
         }
         return null;
     }
@@ -119,6 +119,7 @@ public class MyPageController {
 
         // 간단한 시그니처 기반 컨텐츠 타입 추정 (PNG/JPEG)
         String contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        System.out.println("img : " + bytes.toString());
         if (bytes.length >= 8
                 && (bytes[0] & 0xFF) == 0x89 && (bytes[1] & 0xFF) == 0x50
                 && (bytes[2] & 0xFF) == 0x4E && (bytes[3] & 0xFF) == 0x47) {

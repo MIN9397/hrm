@@ -75,6 +75,7 @@ fetch('/api/userac')
             nodeMap[empId] = {
             		text: { name: user.userName || '이름 없음',
             			title: user.jobTitle || '' },
+            			image: "/mypage/profile-image?employeeId=34",
             	    HTMLclass: 'nodeExample1',
             	    children: []
             };
