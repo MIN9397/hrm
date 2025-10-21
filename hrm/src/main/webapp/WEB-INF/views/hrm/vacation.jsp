@@ -18,7 +18,7 @@
 
 <form method="post" action="/vacation/save">
     <label for="employeeId">직원 ID</label>
-    <input type="number" name="employeeId" id="employeeId" required value="${employeeId}"/>
+    <input type="number" name="employeeId" id="employeeId" required value="${employeeId}" <c:if test="${deptId != 1}">readonly</c:if>/>
 	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 	
     <label for="leaveType">휴가 종류</label>
@@ -69,23 +69,38 @@ function viewVacationList() {
         </thead>
         <tbody>
             <c:forEach var="v" items="${vacations}">
-                <tr>
-                    <td>${v.leaveId}</td>
-                    <td>${v.employeeId}</td>
-                    <td>${v.leaveType}</td>
-                    <td>${v.startDate}</td>
-                    <td>${v.endDate}</td>
-                    <td>
-			            <form method="post" action="/vacation/delete" style="display:inline;">
-			                <!-- ✅ CSRF 토큰 포함 -->
-			                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-			                <input type="hidden" name="leaveId" value="${v.leaveId}" />
-			                <input type="hidden" name="employeeId" value="${v.employeeId}" />
-			                <button type="submit" onclick="return confirm('삭제하시겠습니까?');">삭제</button>
-			            </form>
-			        </td>
-                </tr>
-            </c:forEach>
+<tr>
+    <td>${v.leaveId}</td>
+    <td>${v.employeeId}</td>
+    <td>${v.leaveType}</td>
+    <td>${v.startDate}</td>
+    <td>${v.endDate}</td>
+    <td>${v.status}</td>
+    <td>
+        <c:if test="${deptId == 1}">
+            <!-- ✅ 관리자만 승인/반려 버튼 -->
+            <form action="/vacation/approve" method="post" style="display:inline;">
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                <input type="hidden" name="leaveId" value="${v.leaveId}" />
+                <button type="submit">승인</button>
+            </form>
+            <form action="/vacation/reject" method="post" style="display:inline;">
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                <input type="hidden" name="leaveId" value="${v.leaveId}" />
+                <button type="submit">반려</button>
+            </form>
+        </c:if>
+
+        <!-- ✅ 모든 직원이 사용할 수 있는 삭제 버튼 -->
+        <form method="post" action="/vacation/delete" style="display:inline;">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+            <input type="hidden" name="leaveId" value="${v.leaveId}" />
+            <button type="submit" onclick="return confirm('삭제하시겠습니까?');">삭제</button>
+        </form>
+    </td>
+</tr>
+</c:forEach>
+
         </tbody>
     </table>
 </c:if>

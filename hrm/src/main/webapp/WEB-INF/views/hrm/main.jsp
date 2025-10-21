@@ -5,6 +5,9 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="_csrf" content="${_csrf.token}"/>
+<meta name="_csrf_header" content="${_csrf.headerName}"/>
+
 <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet' />
 <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css' rel='stylesheet' />
 <link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
@@ -115,11 +118,12 @@
   padding: 20px;
 }
 .calendar {
-padding: 20px;
-flex: 6; /* 60% */
+  padding: 20px;
+  flex: 6; /* 60% */
   background: #fff;
   border-radius: 12px;
-  box-shadow: 2px 2px 12px rgba(0,0,0,0.1);}
+  box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
+}
 
 
 
@@ -132,8 +136,54 @@ flex: 6; /* 60% */
         let headerToolbar = {
           left: 'prevYear,prev,next,nextYear today',
           center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+          right: 'dayGridMonth,listWeek'
         };
+
+        // 서버 저장/삭제 헬퍼 함수
+        function saveEventToServer(ev) {
+          const no = ev.extendedProps?.no || ev.id;
+          const payload = {
+            no: no,
+            title: ev.title,
+            start: ev.startStr,
+            end: ev.endStr || ev.startStr,
+            allDayStatus: ev.allDay ? 'TRUE' : 'FALSE',
+            backgroundColor: ev.backgroundColor || ev.backgroundColor,
+            textColor: ev.textColor || ev.textColor
+          };
+
+          const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+          const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+          return fetch("/scheduleUpdate.do", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              [header]: token
+            },
+            body: JSON.stringify(payload)
+          }).then(res => {
+            if (!res.ok) throw new Error("update failed");
+            return true;
+          });
+        }
+
+        function deleteEventFromServer(no) {
+          const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+          const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+          return fetch("/scheduleDelete.do", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              [header]: token
+            },
+            body: JSON.stringify({ no })
+          }).then(res => {
+            if (!res.ok) throw new Error("delete failed");
+            return true;
+          });
+        }
 
         let calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'dayGridMonth',
@@ -146,11 +196,15 @@ flex: 6; /* 60% */
           nowIndicator: true,
           selectable: true,
           unselectAuto: true,
+          selectMirror: true, // 선택 시 미리보기 표시
+          slotEventOverlap: true,
+          eventOverlap: true,
+
 
           //일정 목록 불러오기
           events: "/scheduleList.do",
 
-          //날짜 클릭 시
+          //날짜 클릭 시 (등록) - Month 뷰에서 사용
           dateClick: function(info) {
             let title = prompt("일정 제목을 입력하세요:");
             if (title) {
@@ -161,20 +215,83 @@ flex: 6; /* 60% */
                 allDayStatus: 'TRUE' // 하루종일 일정
               };
 
+              // CSRF 토큰 읽어오기
+              const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+              const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
               fetch("/scheduleInsert.do", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(eventData)
+                  method: "POST",
+                  headers: {
+                      "Content-Type": "application/json",
+                      [header]: token  // 헤더에 CSRF 토큰 추가
+                  },
+                  body: JSON.stringify(eventData)
               })
               .then(res => {
-                if (res.ok) {
-                  alert("일정이 등록되었습니다!");
-                  calendar.refetchEvents(); // 새로고침 없이 일정 갱신
-                } else {
-                  alert("등록 실패!");
-                }
+                  if (res.ok) {
+                      alert("일정이 등록되었습니다!");
+                      calendar.refetchEvents();
+                  } else {
+                      alert("등록 실패!");
+                  }
               });
             }
+          },
+
+          // 일정 클릭 시 (수정/삭제)
+          eventClick: function(info) {
+            const no = info.event.extendedProps?.no || info.event.id;
+            if (!no) {
+              alert("일정 식별자(no)를 찾을 수 없습니다.");
+              return;
+            }
+
+            if (confirm("이 일정을 삭제하시겠습니까?")) {
+              deleteEventFromServer(no)
+                .then(() => {
+                  alert("삭제되었습니다.");
+                  calendar.refetchEvents();
+                })
+                .catch(() => alert("삭제 실패!"));
+              return;
+            }
+
+            const newTitle = prompt("새 제목을 입력하세요.", info.event.title);
+            if (newTitle && newTitle.trim() !== '' && newTitle !== info.event.title) {
+              info.event.setProp('title', newTitle.trim());
+              saveEventToServer(info.event)
+                .then(() => {
+                  alert("수정되었습니다.");
+                  calendar.refetchEvents();
+                })
+                .catch(() => {
+                  alert("수정 실패!");
+                });
+            }
+          },
+
+          // 드래그로 날짜 이동 시 (수정)
+          eventDrop: function(info) {
+            saveEventToServer(info.event)
+              .then(() => {
+                calendar.refetchEvents();
+              })
+              .catch(() => {
+                alert("수정 실패!");
+                info.revert();
+              });
+          },
+
+          // 리사이즈로 종료일 변경 시 (수정)
+          eventResize: function(info) {
+            saveEventToServer(info.event)
+              .then(() => {
+                calendar.refetchEvents();
+              })
+              .catch(() => {
+                alert("수정 실패!");
+                info.revert();
+              });
           }
 
 
@@ -186,6 +303,7 @@ flex: 6; /* 60% */
 
 </head>
 <body>
+<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
 
 <%@include file="/hrm/side.jsp" %>
 
@@ -242,9 +360,10 @@ flex: 6; /* 60% */
       </ul>
     </div>
   </div>
-  <!-- calender -->
-  <div class="calendar">
-  <div id='calendar'></div>
+  <!-- calender + chat -->
+  <div class="calendar-chat-boxes">
+    <div class="calendar-panel">
+      <div id='calendar'></div>
   </div>
 </div>
 

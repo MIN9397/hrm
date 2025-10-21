@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import jakarta.mail.internet.MimeMessage;
+import org.springframework.mail.javamail.MimeMessageHelper;
 
 @Service
 public class MailService {
@@ -32,5 +34,20 @@ public class MailService {
         message.setText(content);
 
         mailSender.send(message);
+    }
+
+    // 일반 메일 전송 (발신자 지정)
+    public void sendMail(String fromEmail, String toEmail, String subject, String content) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject(subject != null && !subject.isBlank() ? subject : "HRM 메일");
+            helper.setText(content, false); // plain text
+            mailSender.send(mimeMessage);
+        } catch (Exception e) {
+            throw new RuntimeException("메일 전송 실패", e);
+        }
     }
 }

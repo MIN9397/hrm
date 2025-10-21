@@ -58,6 +58,10 @@ public class HelloController {
 	private String attendance() {
 		return "/hrm/attendance";
 	}
+	@GetMapping("/check")
+	private String check() {
+		return "/hrm/check";
+	}
 	@GetMapping("/department")
 	private String department() {
 		return "/hrm/department";

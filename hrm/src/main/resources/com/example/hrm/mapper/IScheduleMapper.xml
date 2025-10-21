@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.hrm.mapper.IScheduleMapper">
+
+    <select id="selectScheduleList" parameterType="int" resultType="com.example.hrm.dto.ScheduleVO">
+        SELECT
+        SCH_NO AS no,
+        employee_id AS employeeId,
+        SCH_TITLE AS title,
+        DATE(SCH_START) AS start,
+        DATE(SCH_END) AS end,
+        SCH_BACKGROUND_COLOR AS backgroundColor,
+        SCH_TEXT_COLOR AS textColor,
+        CASE WHEN SCH_ALLDAY = 1 THEN 'TRUE' ELSE 'FALSE' END AS allDayStatus
+        FROM schedule
+        WHERE employee_id = #{employeeId}
+    </select>
+
+
+    <insert id="insertSchedule">
+        INSERT INTO schedule (
+        SCH_TITLE,
+        SCH_START,
+        SCH_END,
+        SCH_BACKGROUND_COLOR,
+        SCH_TEXT_COLOR,
+        SCH_ALLDAY,
+        employee_id
+        ) VALUES (
+        #{title},
+        #{start},
+        #{end},
+        #{backgroundColor},
+        #{textColor},
+        CASE WHEN #{allDayStatus} = 'TRUE' THEN 1 ELSE 0 END,
+        #{employeeId}
+        )
+    </insert>
+
+    <update id="updateSchedule">
+        UPDATE schedule
+        <set>
+            <if test="title != null"> SCH_TITLE = #{title}, </if>
+            <if test="start != null"> SCH_START = #{start}, </if>
+            <if test="end != null"> SCH_END = #{end}, </if>
+            <if test="backgroundColor != null"> SCH_BACKGROUND_COLOR = #{backgroundColor}, </if>
+            <if test="textColor != null"> SCH_TEXT_COLOR = #{textColor}, </if>
+            <if test="allDayStatus != null"> SCH_ALLDAY = CASE WHEN #{allDayStatus} = 'TRUE' THEN 1 ELSE 0 END, </if>
+        </set>
+        WHERE SCH_NO = #{no}
+          AND employee_id = #{employeeId}
+    </update>
+
+    <delete id="deleteSchedule">
+        DELETE FROM schedule
+        WHERE SCH_NO = #{no}
+          AND employee_id = #{employeeId}
+    </delete>
+
+</mapper>

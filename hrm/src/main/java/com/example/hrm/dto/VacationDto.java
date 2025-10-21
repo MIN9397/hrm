@@ -11,10 +11,11 @@ import lombok.Setter;
 @Setter
 public class VacationDto {
 
-	private int employeeId;
+	private Integer employeeId;
     private String leaveType;
     private String startDate;
     private String endDate;
     private int leaveId;
     private String status;
+    
 }
