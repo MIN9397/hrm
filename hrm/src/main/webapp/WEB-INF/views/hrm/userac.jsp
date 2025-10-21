@@ -27,7 +27,7 @@
         .Treant > .node {
             text-align: center;
         }
-        .node-img {
+        .nodeExample1 img {
         width: 60px;
         height: 60px;
         border-radius: 50%;
@@ -46,9 +46,19 @@
 <div id="nodes-container" style="display: none;"></div> <!-- 노드 DOM 요소 보관용 -->
 
 <script>
+window.addEventListener('error', function (e) {
+	  console.error('❗ 전역 에러 발생:', e.message, e);
+	});
 fetch('/api/userac')
     .then(res => res.json())
+
     .then(userac => {
+    	console.log("받은 데이터:", userac);
+    	if (Array.isArray(userac) && userac.length > 0) {
+    	      console.log("첫 번째 이미지 데이터:", userac[0].img);
+    	    } else {
+    	      console.warn("데이터가 배열이 아니거나 비어 있음");
+    	    }
         const nodeMap = {};
         const container = document.getElementById('nodes-container');
 
@@ -59,23 +69,32 @@ fetch('/api/userac')
             //const managerId = user.managerId;
             //const img = user.img || 'https://via.placeholder.com/60';
             const htmlId = 'user-node-' + empId;
+            let imgSrc = 'https://via.placeholder.com/60'; // 기본
+            if (user.img) {
+            	if (!user.img.startsWith('data:image')) {
+                    imgSrc = `data:image/jpeg;base64,${user.img}`;
+                } else {
+                    imgSrc = user.img; // 이미 접두사가 붙어있다면 그대로 사용
+                }
+            }
 
             // DOM 생성
             const div = document.createElement('div');
             div.id = htmlId;
             div.className = 'nodeExample1';
             div.innerHTML = `
-                <img src="${user.img || 'https://via.placeholder.com/60'}" class="node-img" />
+            	<img src="${imgSrc}" class="node-img" />
                 <div><strong>${user.userName || '이름 없음'}</strong></div>
                 <div>(ID: ${empId})</div>
                 <div>${user.jobTitle || ''}</div> <!-- 👈 직책 표시 -->
             `;
             container.appendChild(div);
+    console.log(user.img);
 
             nodeMap[empId] = {
             		text: { name: user.userName || '이름 없음',
             			title: user.jobTitle || '' },
-            			image: "/mypage/profile-image?employeeId=34",
+            			image: '/mypage/profile-image?employeeId='+empId,
             	    HTMLclass: 'nodeExample1',
             	    children: []
             };
@@ -113,7 +132,7 @@ fetch('/api/userac')
     })
     .catch(err => {
         document.getElementById('basic-example').innerText = '❌ 조직도 로딩 실패';
-        console.error(err);
+        console.error('❌ fetch 또는 처리 에러:', err);
     });
 </script>
 

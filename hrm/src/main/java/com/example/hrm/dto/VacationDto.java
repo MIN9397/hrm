@@ -16,4 +16,5 @@ public class VacationDto {
     private String startDate;
     private String endDate;
     private int leaveId;
+    private String status;
 }
