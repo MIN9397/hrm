@@ -13,8 +13,8 @@ public class ScheduleServiceImpl implements IScheduleService{
     private IScheduleMapper mapper;
 
     @Override
-    public List<ScheduleVO> selectScheduleList(){
-        List<ScheduleVO> list = mapper.selectScheduleList();
+    public List<ScheduleVO> selectScheduleList(int employeeId){
+        List<ScheduleVO> list = mapper.selectScheduleList(employeeId);
         changeAllDayStatus(list);
         return list;
     }
@@ -22,6 +22,16 @@ public class ScheduleServiceImpl implements IScheduleService{
     @Override
     public void insertSchedule(ScheduleVO vo){
         mapper.insertSchedule(vo);
+    }
+
+    @Override
+    public void updateSchedule(ScheduleVO vo) {
+        mapper.updateSchedule(vo);
+    }
+
+    @Override
+    public void deleteSchedule(int no, int employeeId) {
+        mapper.deleteSchedule(no, employeeId);
     }
 
     public void changeAllDayStatus(List<ScheduleVO> list){

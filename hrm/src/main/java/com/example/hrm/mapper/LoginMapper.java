@@ -14,7 +14,7 @@ import com.example.hrm.dto.UserDto;
 public interface LoginMapper {
 
     @Select("""
-        SELECT employee_id, employee_code, username, password, enabled, job_id, dept_id, role_id
+        SELECT employee_id, employee_code, username, email, password, enabled, job_id, dept_id, role_id
         FROM user_account
         WHERE employee_code = #{employee_code}
     """)

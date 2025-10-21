@@ -100,11 +100,9 @@
     </div>
     <nav class="nav">
       <a href="/employee/manage" onclick="showSubmenu('person')">사원 관리</a>
-      <a href="#" onclick="showSubmenu('dept')">부서 관리</a>
-      <a href="#" onclick="showSubmenu('job')">직급 관리</a>
+      <a href="#" onclick="showSubmenu('dept')">휴가 관리</a>
       <a href="#" onclick="showSubmenu('attend')">근태 관리</a>
       <a href="#" onclick="showSubmenu('salary')">급여 관리</a>
-      <a href="#" onclick="showSubmenu('location')">Location</a>
     </nav>
 
     <!-- 우측 상단 메뉴 -->
@@ -124,6 +122,23 @@
       <ul class="submenu" id="submenu-container">
         <!-- 자바스크립트로 서브메뉴 동적 출력 -->
       </ul>
+      
+      <!-- 채팅 탭 (메뉴 하단 고정) -->
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+        <h5 style="margin-bottom: 15px; color: #333;">채팅</h5>
+        <ul class="submenu">
+          <li><a href="/chat/list"><i class="fas fa-comments"></i> 채팅 목록</a></li>
+          <li><a href="/chat/new"><i class="fas fa-plus-circle"></i> 새 채팅</a></li>
+        </ul>
+      </div>
+
+      <!-- 메일 탭 (메뉴 하단 고정) -->
+      <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+        <h5 style="margin-bottom: 15px; color: #333;">메일</h5>
+        <ul class="submenu">
+          <li><a href="/mail/compose"><i class="fas fa-envelope"></i> 메일 보내기</a></li>
+        </ul>
+      </div>
     </div>
 
 

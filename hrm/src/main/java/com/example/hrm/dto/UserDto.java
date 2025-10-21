@@ -14,6 +14,7 @@ public class UserDto implements UserDetails, CredentialsContainer {
     private String employee_id;    // 내부 식별용 (기존)
     private String employee_code;  // 로그인 ID
     private String username;       // 표시용 이름
+    private String email;          // 사용자 이메일 (발신자 주소로 사용)
     private String password;
     private boolean enabled;
     private String job_id;
