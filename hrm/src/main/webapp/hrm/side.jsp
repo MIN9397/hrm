@@ -128,7 +128,6 @@
         <h5 style="margin-bottom: 15px; color: #333;">채팅</h5>
         <ul class="submenu">
           <li><a href="/chat/list"><i class="fas fa-comments"></i> 채팅 목록</a></li>
-          <li><a href="/chat/new"><i class="fas fa-plus-circle"></i> 새 채팅</a></li>
         </ul>
       </div>
 

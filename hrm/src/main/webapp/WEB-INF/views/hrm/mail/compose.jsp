@@ -34,7 +34,7 @@
       <div class="alert alert-danger" role="alert">${error}</div>
     </c:if>
 
-    <form action="/mail/send" method="post">
+    <form action="/mail/send" method="post" enctype="multipart/form-data">
       <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
       <div class="mb-3">
         <label class="form-label">받는 사람 이메일</label>
@@ -49,6 +49,12 @@
       <div class="mb-3">
         <label class="form-label">내용</label>
         <textarea name="content" class="form-control" rows="10" placeholder="메일 본문 내용을 입력하세요" required></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">첨부파일 (여러 개 선택 가능)</label>
+        <input type="file" name="attachments" class="form-control" multiple />
+        <div class="form-text">허용 가능한 파일만 첨부하세요. 보안 상 경로 문자는 제거됩니다.</div>
       </div>
 
       <div class="d-flex gap-2">

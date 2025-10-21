@@ -6,6 +6,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class MailService {
@@ -36,15 +37,28 @@ public class MailService {
         mailSender.send(message);
     }
 
-    // 일반 메일 전송 (발신자 지정)
-    public void sendMail(String fromEmail, String toEmail, String subject, String content) {
+    // 일반 메일 전송 (발신자 지정, 첨부파일 가능)
+    public void sendMail(String fromEmail, String toEmail, String subject, String content, MultipartFile[] attachments) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+            // multipart=true 로 생성해야 첨부파일이 포함됨
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             helper.setFrom(fromEmail);
             helper.setTo(toEmail);
             helper.setSubject(subject != null && !subject.isBlank() ? subject : "HRM 메일");
             helper.setText(content, false); // plain text
+
+            // 첨부파일 추가
+            if (attachments != null) {
+                for (MultipartFile file : attachments) {
+                    if (file == null || file.isEmpty()) continue;
+                    String original = file.getOriginalFilename();
+                    // 파일명에서 경로문자 제거하여 보안 강화
+                    String safeName = (original != null) ? original.replaceAll("[\\\\/]+", "_") : "attachment";
+                    helper.addAttachment(safeName, file);
+                }
+            }
+
             mailSender.send(mimeMessage);
         } catch (Exception e) {
             throw new RuntimeException("메일 전송 실패", e);
