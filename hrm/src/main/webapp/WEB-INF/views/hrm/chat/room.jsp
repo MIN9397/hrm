@@ -103,8 +103,11 @@
 <div class="main-content">
   <div class="chat-container">
     <div class="chat-header">
-      <div>
-        <h4 class="mb-0"><i class="bi bi-chat-dots"></i> 채팅방 ${roomId}</h4>
+      <div class="d-flex align-items-center gap-2">
+        <h4 class="mb-0"><i class="bi bi-chat-dots"></i> <span id="roomTitle">채팅방 ${roomName}</span></h4>
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="renameRoom()">
+          <i class="bi bi-pencil-square"></i> 이름 변경
+        </button>
       </div>
       <a href="/chat/list" class="btn btn-sm btn-outline-secondary">
         <i class="bi bi-list"></i> 목록으로
@@ -126,94 +129,147 @@
 
 <script>
   let stompClient = null;
-  
+  // 로그인 사용자 ID (없으면 null)
+  const CURRENT_USER_ID = Number('${empty me ? "" : me.employee_id}') || null;
+  // 현재 채팅방 ID - 안전하게 정수 파싱
+  const ROOM_ID = parseInt('${roomId}', 10);
+
+  // URL 안전 생성 헬퍼
+  function buildUrl(...parts) {
+    return parts
+      .map(part => String(part).replace(/^\/+|\/+$/g, ''))
+      .filter(part => part.length > 0)
+      .join('/');
+  }
+
+  window.addEventListener('DOMContentLoaded', function() {
+    if (!ROOM_ID || isNaN(ROOM_ID) || ROOM_ID <= 0) {
+      alert('유효하지 않은 채팅방입니다.');
+      window.location.href = '/chat/list';
+      return;
+    }
+    // 기존 메시지 히스토리 먼저 로드
+    try { loadHistory(); } catch (e) { console.error('Failed to load history:', e); }
+    // STOMP 연결
+    try { connect(); } catch (e) { console.error('Failed to connect STOMP:', e); }
+  });
+
   function connect() {
-    const socket = new SockJS('/ws');
+    const socket = new SockJS('/ws-stomp');
     stompClient = Stomp.over(socket);
-    
+
     stompClient.connect({}, function(frame) {
       console.log('Connected: ' + frame);
-      
-      stompClient.subscribe('/topic/chat', function(message) {
+
+      // 방별 topic 구독
+      stompClient.subscribe('/topic/chat/' + ROOM_ID, function(message) {
         const chatMessage = JSON.parse(message.body);
         showMessage(chatMessage);
       });
-      
-      // 입장 메시지
-      const joinMessage = {
-        type: 'JOIN',
-        sender: '${me.username}' || '사용자',
-        content: '님이 입장하셨습니다.'
-      };
-      stompClient.send("/app/chat.send", {}, JSON.stringify(joinMessage));
     });
   }
-  
+
   function sendMessage() {
-    const input = document.getElementById('messageInput');
-    const content = input.value.trim();
+    const messageInput = document.getElementById('messageInput');
+    const messageContent = messageInput.value.trim();
     
-    if (content && stompClient) {
-      const message = {
-        type: 'CHAT',
-        content: content,
-        sender: '${me.username}' || '사용자'
-      };
-      
+    if (!messageContent) {
+      alert('메시지를 입력해주세요.');
+      return;
+    }
+
+    // 서버 DTO(ChatMessageDto)에 맞춘 필드만 전송
+    const message = {
+      roomId: ROOM_ID,
+      message: messageContent
+    };
+
+    if (stompClient && stompClient.connected) {
       stompClient.send("/app/chat.send", {}, JSON.stringify(message));
-      input.value = '';
-    }
-  }
-  
-  function showMessage(message) {
-    const messagesDiv = document.getElementById('chatMessages');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'message';
-    
-    const currentUser = '${me.username}' || '사용자';
-    if (message.sender === currentUser) {
-      messageDiv.classList.add('mine');
-    }
-    
-    if (message.type === 'JOIN' || message.type === 'LEAVE') {
-      messageDiv.innerHTML = `
-        <div style="text-align: center; color: #999; font-size: 0.85rem;">
-          ${message.sender} ${message.content}
-        </div>
-      `;
+      messageInput.value = '';
     } else {
-      messageDiv.innerHTML = `
-        <div class="message-sender">${message.sender}</div>
-        <div class="message-content">${message.content}</div>
-      `;
+      alert('서버와의 연결이 끊어졌습니다. 잠시 후 다시 시도해주세요.');
     }
-    
-    messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
   }
-  
-  // Enter 키로 전송
-  document.addEventListener('DOMContentLoaded', function() {
-    connect();
-    
-    document.getElementById('messageInput').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        sendMessage();
+
+  // 채팅방 메시지 히스토리 로드
+  function loadHistory() {
+    const url = '/' + buildUrl('chat', 'room', ROOM_ID, 'messages');
+    fetch(url)
+      .then(res => {
+        if (!res.ok) throw new Error('failed to load history: ' + res.status);
+        return res.json();
+      })
+      .then(list => {
+        if (Array.isArray(list)) {
+          list.forEach(msg => showMessage(msg));
+        }
+      })
+      .catch(err => console.error('메시지 기록 로드 실패:', err));
+  }
+
+  // 채팅방 이름 변경
+  function renameRoom() {
+    const titleEl = document.getElementById('roomTitle');
+    const currentName = titleEl ? titleEl.textContent.trim() : '';
+    const newName = prompt('채팅방 이름을 입력하세요.', currentName);
+    if (!newName || !newName.trim()) return;
+
+    const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    const url = '/' + buildUrl('chat', 'room', ROOM_ID, 'rename');
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        [header]: token
+      },
+      body: JSON.stringify({ roomName: newName.trim() })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('rename failed');
+      return res.json().catch(() => ({ success: true }));
+    })
+    .then((data) => {
+      if (!data || data.success !== false) {
+        if (titleEl) titleEl.textContent = newName.trim();
+      } else {
+        alert(data.message || '이름 변경에 실패했습니다.');
       }
-    });
-  });
-  
-  // 페이지 나갈 때 퇴장 메시지
+    })
+    .catch(() => alert('이름 변경에 실패했습니다.'));
+  }
+
+  // 페이지 이탈 시 안전하게 연결 종료
   window.addEventListener('beforeunload', function() {
-    if (stompClient) {
-      const leaveMessage = {
-        type: 'LEAVE',
-        sender: '${me.username}' || '사용자',
-        content: '님이 퇴장하셨습니다.'
-      };
-      stompClient.send("/app/chat.send", {}, JSON.stringify(leaveMessage));
+    if (stompClient && stompClient.connected) {
+      try {
+        stompClient.disconnect(function() {});
+      } catch (e) {
+        // ignore
+      }
     }
   });
+
+  // 수신 메시지 표시 (간단 렌더링)
+  function showMessage(msg) {
+    const box = document.getElementById('chatMessages');
+    if (!box) return;
+
+    const isMine = (CURRENT_USER_ID != null) && (Number(msg && msg.senderId) === Number(CURRENT_USER_ID));
+
+    const wrap = document.createElement('div');
+    wrap.className = 'message' + (isMine ? ' mine' : '');
+
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    content.textContent = msg && msg.message ? String(msg.message) : '';
+
+    wrap.appendChild(content);
+    box.appendChild(wrap);
+    box.scrollTop = box.scrollHeight;
+  }
 </script>
 
 </body>

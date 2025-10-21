@@ -9,7 +9,7 @@
   <title>인사는 내맘대로</title>
   <script src="https://kit.fontawesome.com/08035877d1.js" crossorigin="anonymous"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="/res/js/script.js"></script>
+  <script src="/hrm/js/script.js"></script>
   
   <style>
     body {
