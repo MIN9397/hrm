@@ -9,7 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
+import com.example.hrm.dto.CertificateUserDTO;
 import com.example.hrm.dto.SalaryDetailDTO;
 import com.example.hrm.mapper.MsalaryMapper;
 
@@ -26,6 +26,14 @@ public class MsalaryController {
 	    System.out.println(detail);
 	    model.addAttribute("detail", detail);
 	    return "/hrm/salary"; // → 월별 내역 페이지
+	}
+	
+	@GetMapping("/certificate")
+	public String CertificateUser(@RequestParam("employee_id") int employee_id, Model model) {
+		CertificateUserDTO certi = msalary.selectCeUserById(employee_id);
+	    System.out.println(certi);
+	    model.addAttribute("certi", certi);
+	    return "/hrm/certificate"; 
 	}
 	
 	@GetMapping("/msalary")
