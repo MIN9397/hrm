@@ -23,6 +23,9 @@ public class EmployeeDto {
     private Integer dependents;   // user_account.dependents
     private Integer children;     // user_account.children
     private Integer salaryYear;   // user_account.salary_year
+    private String address;       // user_account.address
+    private String phone;         // user_account.phone
+    private LocalDate birth;      // user_account.birth
 
     // 활성화 여부 (1: 활성화, 0: 비활성화)
     private Integer enabled;

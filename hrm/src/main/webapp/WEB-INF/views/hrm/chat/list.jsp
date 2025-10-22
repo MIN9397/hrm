@@ -1,11 +1,18 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <meta name="_csrf" content="${_csrf.token}"/>
 <meta name="_csrf_header" content="${_csrf.headerName}"/>
+
+<sec:authentication property="principal.employee_id" var="meEmployeeId"/>
+<sec:authentication property="principal.username" var="meUsername"/>
+<meta name="me-id" content="${meEmployeeId}"/>
+<meta name="me-username" content="${meUsername}"/>
+
 <title>채팅 목록</title>
 <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet' />
 <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css' rel='stylesheet' />
@@ -138,12 +145,17 @@
   <div class="chat-list-container">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2><i class="bi bi-chat-dots"></i> 채팅 목록</h2>
-      <button type="button" class="btn btn-primary" onclick="openNewChat()">
-        <i class="bi bi-plus-circle"></i> 새 채팅 시작
-      </button>
+      <div>
+        <button type="button" class="btn btn-primary" onclick="openNewChat()">
+          <i class="bi bi-plus-circle"></i> 새 채팅 시작
+        </button>
+        <button type="button" class="btn btn-outline-primary ms-2" onclick="startDeptChat()">
+          <i class="bi bi-people"></i> 팀 채팅방
+        </button>
+      </div>
     </div>
     <div id="chatList"></div>
-    
+
 
 
 <!-- 오른쪽 사원 목록 패널 -->
@@ -166,13 +178,24 @@
 
 <script>
   let employeesCache = [];
+  const ME_ID = document.querySelector('meta[name="me-id"]')?.getAttribute('content') || null;
+  const ME_USERNAME = document.querySelector('meta[name="me-username"]')?.getAttribute('content') || null;
 
   window.addEventListener('DOMContentLoaded', loadChatList);
 
   function loadChatList() {
+    console.log('채팅 목록 로딩 시작 - ME_ID:', ME_ID, 'ME_USERNAME:', ME_USERNAME);
+
     fetch('/chat/rooms')
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) {
+          throw new Error('HTTP ' + r.status);
+        }
+        return r.json();
+      })
       .then(list => {
+        console.log('받은 채팅방 목록:', list);
+
         const container = document.querySelector('#chatList');
         if (!container) return;
 
@@ -181,26 +204,57 @@
           return;
         }
 
-        container.innerHTML = list.map(r => `
-          <div class="chat-item" onclick="location.href='/chat/room/${'$'}{encodeURIComponent(r.roomId)}'">
-            <div class="chat-info">
-              <div class="chat-title"><i class="bi bi-people"></i> ${'$'}{r.roomName}</div>
-              <div class="chat-preview">${'$'}{r.lastMessage || ''}</div>
-            </div>
-            <div class="chat-meta">
-              <div class="chat-time">${'$'}{r.updatedAt ? new Date(r.updatedAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''}</div>
-            </div>
-          </div>
-        `).join('');
+        // 채팅방 타이틀(상대방 이름/부서명) 결정 로직
+        const getChatTitle = function(r) {
+          // 부서 전용 방: "DEPT-{id}: {부서명}" -> "{부서명}"만 표시
+          if (r.roomName && r.roomName.startsWith('DEPT-')) {
+            const idx = r.roomName.indexOf(':');
+            return idx > -1 ? r.roomName.substring(idx + 1).trim() : r.roomName;
+          }
+
+          // 백엔드에서 직접 제공하는 partnerName 사용
+          if (r.partnerName && r.partnerName !== '알 수 없음') {
+            return r.partnerName;
+          }
+
+          if (r.partnerUsername) {
+            return r.partnerUsername;
+          }
+
+          // 폴백: roomName에서 "DM" 제거
+          if (r.roomName) {
+            return r.roomName.replace(/^DM\s+\d+-\d+$/, '채팅방');
+          }
+
+          return '채팅방';
+        };
+
+        container.innerHTML = list.map(r => {
+          const titleSafe = escapeHtml(getChatTitle(r));
+          const lastMsg = r.lastMessage || '메시지 없음';
+          const timeStr = r.updatedAt ? new Date(r.updatedAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+          const roomHref = '/chat/room/' + encodeURIComponent(r.roomId);
+          return (
+            '<div class="chat-item" onclick="location.href=\'' + roomHref + '\'">' +
+              '<div class="chat-info">' +
+                '<div class="chat-title"><i class="bi bi-person"></i> ' + titleSafe + '</div>' +
+                '<div class="chat-preview">' + escapeHtml(lastMsg) + '</div>' +
+              '</div>' +
+              '<div class="chat-meta">' +
+                '<div class="chat-time">' + timeStr + '</div>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join('');
       })
-      .catch(() => {
+      .catch(err => {
+        console.error('채팅방 로딩 실패:', err);
         const container = document.querySelector('#chatList');
         if (container) {
-          container.innerHTML = '<div class="text-danger small p-2">채팅방을 불러오지 못했습니다.</div>';
+          container.innerHTML = '<div class="text-danger small p-2">채팅방을 불러오지 못했습니다. 오류: ' + err.message + '</div>';
         }
       });
   }
-
 
   function openNewChat() {
     const panel = document.getElementById('employeePanel');
@@ -284,6 +338,35 @@
       }
     })
     .catch(() => alert('채팅방 생성 중 오류가 발생했습니다.'));
+  }
+
+  // 팀(부서) 채팅방 생성/접속
+  function startDeptChat() {
+    const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+    const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+
+    fetch('/chat/room/dept/new', {
+      method: 'POST',
+      headers: {
+        [header]: token || ''
+      }
+    })
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(({ roomId, error }) => {
+      if (error) {
+        alert('권한이 없습니다. 다시 로그인해주세요.');
+        return;
+      }
+      if (roomId) {
+        location.href = '/chat/room/' + encodeURIComponent(roomId);
+      } else {
+        alert('부서 채팅방 생성에 실패했습니다.');
+      }
+    })
+    .catch(() => alert('부서 채팅방 생성 중 오류가 발생했습니다.'));
   }
 </script>
 

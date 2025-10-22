@@ -24,6 +24,9 @@ public interface EmployeeMapper {
             j.job_title AS jobTitle,
             d.dept_name AS deptName,
             ua.email     AS email,
+            ua.address   AS address,
+            ua.phone     AS phone,
+            ua.birth     AS birth,
             ua.s_date     AS hireDate,
             ua.f_date     AS retireDate,
             ua.dependents AS dependents,
@@ -96,6 +99,9 @@ public interface EmployeeMapper {
                 ua.children AS children,
                 ua.enabled AS enabled,
                 ua.email AS email,
+                ua.address AS address,
+                ua.phone AS phone,
+                ua.birth AS birth,
                 j.job_title AS jobTitle,
                 d.dept_name AS deptName
             FROM user_account ua
@@ -129,7 +135,10 @@ public interface EmployeeMapper {
             s_date = #{sDate},
             dependents = #{dependents},
             children = #{children},
-            email = #{email}
+            email = #{email},
+            address = #{address},
+            phone = #{phone},
+            birth = #{birth}
         WHERE employee_id = #{employeeId}
     """)
     int updateEmployee(
@@ -141,7 +150,10 @@ public interface EmployeeMapper {
         @Param("sDate") Date sDate,
         @Param("dependents") Integer dependents,
         @Param("children") Integer children,
-        @Param("email") String email
+        @Param("email") String email,
+        @Param("address") String address,
+        @Param("phone") String phone,
+        @Param("birth") Date birth
     );
 
     @Select("""

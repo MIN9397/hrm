@@ -130,7 +130,10 @@ public class EmployeeController {
         @RequestParam(value = "children", required = false) Integer children,
         @RequestParam("jobId") String jobId,
         @RequestParam("deptId") String deptId,
-        @RequestParam(value = "email", required = false) String email
+        @RequestParam(value = "email", required = false) String email,
+        @RequestParam(value = "address", required = false) String address,
+        @RequestParam(value = "phone", required = false) String phone,
+        @RequestParam(value = "birth", required = false) String birth
     ) {
         if (!isHr(auth)) {
             return "redirect:/main";
@@ -138,6 +141,10 @@ public class EmployeeController {
         java.time.LocalDate hire = null;
         if (sDate != null && !sDate.isBlank()) {
             hire = java.time.LocalDate.parse(sDate);
+        }
+        java.time.LocalDate birthDate = null;
+        if (birth != null && !birth.isBlank()) {
+            birthDate = java.time.LocalDate.parse(birth);
         }
 
         EmployeeDto dto = new EmployeeDto();
@@ -150,6 +157,9 @@ public class EmployeeController {
         dto.setJobId(jobId);
         dto.setDeptId(deptId);
         dto.setEmail(email);
+        dto.setAddress(address);
+        dto.setPhone(phone);
+        dto.setBirth(birthDate);
 
         employeeService.updateEmployee(dto);
         return "redirect:/employee/manage";

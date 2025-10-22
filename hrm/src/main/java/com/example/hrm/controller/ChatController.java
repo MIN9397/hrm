@@ -35,20 +35,31 @@ public class ChatController {
     public String chatRoom(@PathVariable Integer roomId, Model model, Authentication auth) {
         model.addAttribute("roomId", roomId);
 
-        // DB에서 채팅방 이름 조회
-        String roomName = null;
-        try {
-            roomName = chatService.getRoomName(roomId);
-        } catch (IllegalArgumentException ignored) {
-        }
-        if (roomName == null || roomName.isBlank()) {
-            roomName = "채팅방";
-        }
-        model.addAttribute("roomName", roomName);
-
+        Long myEmployeeId = null;
         if (auth != null && auth.getPrincipal() instanceof UserDto user) {
+            myEmployeeId = Long.valueOf(user.getEmployee_id());
             model.addAttribute("me", user);
         }
+        
+        // 채팅방 상세 정보 조회 (상대방 이름 포함)
+        Map<String, Object> roomDetail = chatService.getRoomDetail(roomId, myEmployeeId);
+        
+        // 기본 표시 이름
+        String displayName = "채팅방";
+        if (roomDetail != null && roomDetail.get("partnerName") != null) {
+            displayName = (String) roomDetail.get("partnerName");
+        }
+
+        // 부서 채팅방이면 room_name에서 접두어 제거 후 부서명만 표시
+        String rawRoomName = chatService.getRoomName(roomId);
+        if (rawRoomName != null && rawRoomName.startsWith("DEPT-")) {
+            int idx = rawRoomName.indexOf(':');
+            displayName = (idx > -1) ? rawRoomName.substring(idx + 1).trim() : rawRoomName;
+        }
+        
+        model.addAttribute("roomName", displayName);
+        model.addAttribute("partnerName", displayName);
+        
         return "/hrm/chat/room";
     }
 
@@ -78,7 +89,22 @@ public class ChatController {
         return Map.of("roomId", roomId);
     }
 
-    // 채팅방 목록 조회 (JSON)
+    // 부서 채팅방 생성/접속
+    @PostMapping("/chat/room/dept/new")
+    @ResponseBody
+    public Map<String, Object> createDeptRoom(Authentication auth) {
+        Long myId = null;
+        if (auth != null && auth.getPrincipal() instanceof UserDto user) {
+            myId = Long.valueOf(user.getEmployee_id());
+        }
+        if (myId == null) {
+            return Map.of("error", "unauthorized");
+        }
+        Integer roomId = chatService.createDeptRoomFor(myId);
+        return Map.of("roomId", roomId);
+    }
+
+    // 채팅방 목록 조회
     @GetMapping("/chat/rooms")
     @ResponseBody
     public List<Map<String, Object>> getRoomList(Authentication auth) {
@@ -86,55 +112,40 @@ public class ChatController {
         if (auth != null && auth.getPrincipal() instanceof UserDto user) {
             myId = Long.valueOf(user.getEmployee_id());
         }
-        return chatService.getRoomList(myId);
+        
+        if (myId == null) {
+            // 인증 정보가 없을 경우 빈 리스트 반환
+            return List.of();
+        }
+        
+        List<Map<String, Object>> rooms = chatService.getRoomList(myId);
+        
+        // 디버깅용 로그 추가 (선택사항)
+        System.out.println("채팅방 목록 조회 - 사용자 ID: " + myId + ", 채팅방 수: " + rooms.size());
+        
+        return rooms;
     }
 
-    // 채팅방 메시지 목록 조회 (JSON)
+    // 채팅방 메시지 목록 조회 (추가)
     @GetMapping("/chat/room/{roomId}/messages")
     @ResponseBody
     public List<ChatMessageDto> getMessages(@PathVariable Integer roomId) {
         return chatService.getMessages(roomId);
     }
 
-    // 채팅방 이름 변경
-    @PostMapping("/chat/room/{roomId}/rename")
-    @ResponseBody
-    public Map<String, Object> renameRoom(@PathVariable Integer roomId, @RequestBody Map<String, String> body, Authentication auth) {
-        String roomName = (body != null) ? body.get("roomName") : null;
-        try {
-            chatService.updateRoomName(roomId, roomName);
-            return Map.of("success", true);
-        } catch (IllegalArgumentException e) {
-            return Map.of("success", false, "message", e.getMessage());
-        }
-    }
-
     // 메시지 전송 (STOMP)
     @MessageMapping("/chat.send")
     public void send(ChatMessageDto message, Authentication auth) {
-        if (message == null) return;
-
-        // 메시지 내용이 비어있는 경우 처리
-        if (message.getMessage() == null || message.getMessage().trim().isEmpty()) {
-            System.err.println("메시지 내용이 비어있습니다.");
-            return;
-        }
+        if (message == null || message.getMessage() == null || message.getMessage().trim().isEmpty()) return;
 
         if (message.getSenderId() == null && auth != null && auth.getPrincipal() instanceof UserDto user) {
             message.setSenderId(Long.valueOf(user.getEmployee_id()));
         }
 
         message.setCreatedAt(LocalDateTime.now());
-
-        // DB 저장
-        try {
-            chatService.saveMessage(message);
-            // 방별 브로드캐스트
-            template.convertAndSend("/topic/chat/" + message.getRoomId(), message);
-        } catch (Exception e) {
-            System.err.println("메시지 저장 실패: " + e.getMessage());
-            e.printStackTrace();
-        }
+        chatService.saveMessage(message);
+        template.convertAndSend("/topic/chat/" + message.getRoomId(), message);
     }
+
 
 }

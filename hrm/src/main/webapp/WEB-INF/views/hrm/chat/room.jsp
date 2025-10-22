@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="_csrf" content="${_csrf.token}"/>
 <meta name="_csrf_header" content="${_csrf.headerName}"/>
-<title>채팅방</title>
+<title><c:out value="${partnerName}"/> - 채팅방</title>
 <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet' />
 <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css' rel='stylesheet' />
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
@@ -104,10 +104,10 @@
   <div class="chat-container">
     <div class="chat-header">
       <div class="d-flex align-items-center gap-2">
-        <h4 class="mb-0"><i class="bi bi-chat-dots"></i> <span id="roomTitle">채팅방 ${roomName}</span></h4>
-        <button type="button" class="btn btn-sm btn-outline-primary" onclick="renameRoom()">
-          <i class="bi bi-pencil-square"></i> 이름 변경
-        </button>
+        <h4 class="mb-0">
+          <i class="bi bi-person-circle"></i> 
+          <span id="roomTitle"><c:out value="${partnerName}"/></span>
+        </h4>
       </div>
       <a href="/chat/list" class="btn btn-sm btn-outline-secondary">
         <i class="bi bi-list"></i> 목록으로
@@ -133,6 +133,8 @@
   const CURRENT_USER_ID = Number('${empty me ? "" : me.employee_id}') || null;
   // 현재 채팅방 ID - 안전하게 정수 파싱
   const ROOM_ID = parseInt('${roomId}', 10);
+  // 상대방 이름
+  const PARTNER_NAME = '<c:out value="${partnerName}"/>' || '채팅방';
 
   // URL 안전 생성 헬퍼
   function buildUrl(...parts) {
@@ -148,10 +150,21 @@
       window.location.href = '/chat/list';
       return;
     }
+    
+    // 페이지 타이틀 설정
+    document.title = PARTNER_NAME + ' - 채팅방';
+    
     // 기존 메시지 히스토리 먼저 로드
     try { loadHistory(); } catch (e) { console.error('Failed to load history:', e); }
     // STOMP 연결
     try { connect(); } catch (e) { console.error('Failed to connect STOMP:', e); }
+    
+    // Enter 키로 메시지 전송
+    document.getElementById('messageInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
   });
 
   function connect() {
@@ -174,7 +187,6 @@
     const messageContent = messageInput.value.trim();
     
     if (!messageContent) {
-      alert('메시지를 입력해주세요.');
       return;
     }
 
@@ -208,39 +220,6 @@
       .catch(err => console.error('메시지 기록 로드 실패:', err));
   }
 
-  // 채팅방 이름 변경
-  function renameRoom() {
-    const titleEl = document.getElementById('roomTitle');
-    const currentName = titleEl ? titleEl.textContent.trim() : '';
-    const newName = prompt('채팅방 이름을 입력하세요.', currentName);
-    if (!newName || !newName.trim()) return;
-
-    const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-    const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-    const url = '/' + buildUrl('chat', 'room', ROOM_ID, 'rename');
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        [header]: token
-      },
-      body: JSON.stringify({ roomName: newName.trim() })
-    })
-    .then(res => {
-      if (!res.ok) throw new Error('rename failed');
-      return res.json().catch(() => ({ success: true }));
-    })
-    .then((data) => {
-      if (!data || data.success !== false) {
-        if (titleEl) titleEl.textContent = newName.trim();
-      } else {
-        alert(data.message || '이름 변경에 실패했습니다.');
-      }
-    })
-    .catch(() => alert('이름 변경에 실패했습니다.'));
-  }
-
   // 페이지 이탈 시 안전하게 연결 종료
   window.addEventListener('beforeunload', function() {
     if (stompClient && stompClient.connected) {
@@ -252,7 +231,6 @@
     }
   });
 
-  // 수신 메시지 표시 (간단 렌더링)
   function showMessage(msg) {
     const box = document.getElementById('chatMessages');
     if (!box) return;

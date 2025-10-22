@@ -99,6 +99,7 @@ public class EmployeeService {
 
     public void updateEmployee(EmployeeDto dto) {
         java.sql.Date sDate = dto.getHireDate() != null ? java.sql.Date.valueOf(dto.getHireDate()) : null;
+        java.sql.Date birth = dto.getBirth() != null ? java.sql.Date.valueOf(dto.getBirth()) : null;
         employeeMapper.updateEmployee(
             dto.getEmployeeId(),
             dto.getUsername(),
@@ -108,7 +109,10 @@ public class EmployeeService {
             sDate,
             dto.getDependents(),
             dto.getChildren(),
-            dto.getEmail()
+            dto.getEmail(),
+            dto.getAddress(),
+            dto.getPhone(),
+            birth
         );
     }
 

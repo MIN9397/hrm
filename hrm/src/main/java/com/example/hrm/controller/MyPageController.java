@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.Authentication;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -34,7 +33,7 @@ public class MyPageController {
 
     private final Path profileDir = Paths.get(System.getProperty("user.home"), "hrm-uploads", "profiles");
 
-    private String getEmployeeId(Authentication auth) {
+    private Object getEmployeeId(Authentication auth) {
         if (auth == null || auth.getPrincipal() == null) return null;
         Object p = auth.getPrincipal();
         if (p instanceof UserDto u) {
@@ -45,7 +44,7 @@ public class MyPageController {
 
     @GetMapping("/mypage")
     public String mypage(Authentication auth, Model model) {
-        String employeeId = getEmployeeId(auth);
+        String employeeId = getEmployeeId(auth).toString();
         if (employeeId == null) {
             return "redirect:/main";
         }
@@ -63,7 +62,7 @@ public class MyPageController {
             @RequestParam(value = "passwordConfirm", required = false) String passwordConfirm,
             @RequestParam(value = "profileImage", required = false) MultipartFile profileImage
     ) throws IOException {
-        String employeeId = getEmployeeId(auth);
+        String employeeId = getEmployeeId(auth).toString();
         if (employeeId == null) {
             return "redirect:/main";
         }
@@ -98,7 +97,7 @@ public class MyPageController {
             Authentication auth,
             @RequestParam(value = "employeeId", required = false) String employeeIdParam
     ) throws IOException {
-        String employeeId = (employeeIdParam != null && !employeeIdParam.isBlank()) ? employeeIdParam : getEmployeeId(auth);
+        String employeeId = (employeeIdParam != null && !employeeIdParam.isBlank()) ? employeeIdParam : getEmployeeId(auth).toString();
         if (employeeId == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
