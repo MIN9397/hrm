@@ -53,7 +53,7 @@ jobs:
           echo \"pid : \$pids\"
           if [ -n \"\$pids\" ]; then
             echo \"Would terminate PIDs: \$pids\"
-            sudo kill -9 $pids
+            sudo kill -9 \$pids
             echo '프로세스 종료'
           else
             echo '프로세스 없음'
