@@ -4,7 +4,19 @@
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.hrm.mapper.AttendanceMapper">
+	<!-- 출근 INSERT -->
+    <insert id="insertCheckIn" parameterType="com.example.hrm.dto.AttendanceDto">
+        INSERT INTO attendance (employee_id, dept_id, work_date, check_in_time)
+        VALUES (#{employeeId}, #{deptId}, #{workDate}, #{checkInTime})
+    </insert>
 
+    <!-- 퇴근 UPDATE -->
+    <update id="updateCheckOut" parameterType="com.example.hrm.dto.AttendanceDto">
+        UPDATE attendance
+        SET check_out_time = #{checkOutTime}
+        WHERE employee_id = #{employeeId}
+          AND work_date = #{workDate}
+    </update>
     <select id="getAttendanceByEmployeeId" resultType="com.example.hrm.dto.AttendanceDto">
         SELECT attendance_id, employee_id, dept_id, work_date, check_in_time, check_out_time
         FROM attendance
@@ -28,19 +40,6 @@
         FROM attendance
         ORDER BY work_date DESC
     </select>
-    <insert id="insertVacation" useGeneratedKeys="true" keyProperty="leaveId">
-        INSERT INTO vacation (employee_id, leave_type, start_date, end_date)
-        VALUES (#{employeeId}, #{leaveType}, #{startDate}, #{endDate})
-    </insert>
-
-    <select id="selectVacationByEmployeeId" resultType="com.example.hrm.dto.VacationDto">
-        SELECT leave_id, employee_id, leave_type, start_date, DATE_ADD(STR_TO_DATE(end_date, '%Y-%m-%d'), INTERVAL 1 DAY) end_date
-        FROM vacation
-        WHERE employee_id = #{employeeId}
-    </select>
-    <delete id="deleteVacation">
-    DELETE FROM vacation
-    WHERE leave_id = #{leaveId}
-</delete>
+    
     
 </mapper>

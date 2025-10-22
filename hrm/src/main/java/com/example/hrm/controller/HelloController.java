@@ -12,6 +12,9 @@ import jakarta.servlet.http.HttpSession;
 @Controller
 public class HelloController {
 	
+	@org.springframework.beans.factory.annotation.Autowired
+	private com.example.hrm.config.service.EmployeeService employeeService;
+
 	@GetMapping("/")
 	private String index() {
 		System.out.println("=======================test");
@@ -34,7 +37,17 @@ public class HelloController {
 	}
 	
 	@GetMapping("/main")
-	private String main() {
+	private String main(org.springframework.security.core.Authentication auth, org.springframework.ui.Model model) {
+		if (auth != null && auth.getPrincipal() instanceof com.example.hrm.dto.UserDto u) {
+			String employeeId = u.getEmployeeId();
+			if (employeeId != null) {
+				com.example.hrm.dto.EmployeeDto me = employeeService.getEmployeeById(employeeId);
+				if (me != null) {
+					model.addAttribute("me", me);
+					model.addAttribute("imgVersion", System.currentTimeMillis());
+				}
+			}
+		}
 		return "/hrm/main";
 	}
 	@GetMapping("/vacation")
@@ -44,6 +57,10 @@ public class HelloController {
 	@GetMapping("/attendance")
 	private String attendance() {
 		return "/hrm/attendance";
+	}
+	@GetMapping("/check")
+	private String check() {
+		return "/hrm/check";
 	}
 	@GetMapping("/department")
 	private String department() {

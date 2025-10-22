@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 
+	0. Mapper는 interface로 만들어야 함
+	1. namespage : xml의 namespace는 인터페이스의 패키지명을 포함한 인터페이스명으로 지정
+	2. id속성 : 인터페이스의 추상메서드명
+	3. insert, update, delete 태그는 반환결과가 몇건이 처리 되었는지 숫자로 반환
+-->
+<mapper namespace="com.example.hrm.mapper.UploadMapper">
+
+	<select id="getFile">
+		SELECT  * 
+		FROM    upload_file 
+		WHERE   FILE_ID = #{file_id}
+		AND     ATTACH_IDX = #{attach_idx}
+	</select>
+	
+	<select id="getSeq">
+		select seq_upload_file.NEXTVAL from dual
+	</select>
+	
+	<insert id="insertUpload">
+	INSERT INTO upload_file (FILE_ID, ATTACH_IDX, ORIG_NAME, STORED_NAME, REL_PATH, 
+                            CONTENT_TYPE, FILE_SIZE, USER_ID )
+                VALUES (#{file_id}, #{attach_idx}, #{orig_name}, #{stored_name}, #{rel_path},
+                        #{content_type}, #{file_size}, #{user_id})
+	</insert>
+	
+	<select id="selectList">
+		SELECT FILE_ID, ATTACH_IDX, ORIG_NAME, STORED_NAME, CONTENT_TYPE
+		        , USER_ID, DECODE(TO_CHAR(SYSDATE, 'yyyymmdd')
+		                            , TO_CHAR(CREATED_AT, 'yyyymmdd')
+		                            , TO_CHAR(CREATED_AT, 'hh24:mi:ss')
+		                            , TO_CHAR(CREATED_AT, 'yyyy-mm-dd')) CREATED_AT
+		        , user_id
+		FROM upload_file
+		<where>
+  			<!-- 검색어와 검색필드에 값이 입력된 경우
+  				null 체크 하지 않은 이유 : searchDto객체의 필드가 빈 문자열로 초기화 됨 -->
+  			<if test="searchField != '' and searchWord != ''">
+  				<!-- 검색필드에 값이 여러개인 경우
+  					ex)searchField =  title/content
+  					title/content like '%오류%'
+  					(title like ...
+  					or content like ...)
+  				-->
+  				<foreach collection="searchField.split('/')" item="field" open="(" close=")" separator="or">
+	  				${field} like '%'||#{searchWord}||'%'  					
+  				</foreach>
+  			</if>
+  		</where>
+		ORDER BY FILE_ID DESC
+	  	OFFSET (#{pageNo} - 1) * #{amount} ROWS FETCH NEXT #{amount} ROWS ONLY
+	</select>
+	
+	<select id="getTotalCnt">
+		select count(*) 
+		from upload_file
+		<!-- 검색 조건 -->
+		<where>
+  			<!-- 검색어와 검색필드에 값이 입력된 경우
+  				null 체크 하지 않은 이유 : searchDto객체의 필드가 빈 문자열로 초기화 됨 -->
+  			<if test="searchField != '' and searchWord != ''">
+  				<!-- 검색필드에 값이 여러개인 경우
+  					ex)searchField =  title/content
+  					title/content like '%오류%'
+  					(title like ...
+  					or content like ...)
+  				-->
+  				<foreach collection="searchField.split('/')" item="field" open="(" close=")" separator="or">
+	  				${field} like '%'||#{searchWord}||'%'  					
+  				</foreach>
+  			</if>
+  		</where>
+	</select>
+	
+</mapper> 

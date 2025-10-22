@@ -71,7 +71,9 @@ public class EmployeeController {
         @RequestParam(value = "dependents", required = false) Integer dependents,
         @RequestParam(value = "children", required = false) Integer children,
         @RequestParam("jobId") String jobId,
-        @RequestParam("deptId") String deptId
+        @RequestParam("deptId") String deptId,
+        @RequestParam(value = "email", required = false) String email
+
     ) {
         if (!isHr(auth)) {
             return "redirect:/main";
@@ -86,8 +88,70 @@ public class EmployeeController {
         dto.setChildren(children);
         dto.setJobId(jobId);
         dto.setDeptId(deptId);
+        dto.setEmail(email);
+
 
         employeeService.registerEmployee(dto);
+        return "redirect:/employee/manage";
+    }
+
+        @PostMapping("/resign")
+        public String resign(Authentication auth, @RequestParam("employeeId") String employeeId) {
+            if (!isHr(auth)) {
+                return "redirect:/main";
+            }
+            employeeService.resignEmployee(employeeId);
+            return "redirect:/employee/manage";
+        }
+
+    @GetMapping("/edit")
+    public String editForm(Authentication auth, @RequestParam("employeeId") String employeeId, Model model) {
+        if (!isHr(auth)) {
+            return "redirect:/main";
+        }
+        EmployeeDto employee = employeeService.getEmployeeById(employeeId);
+        if (employee == null) {
+            return "redirect:/employee/manage";
+        }
+        model.addAttribute("employee", employee);
+        model.addAttribute("jobs", employeeService.getJobs());
+        model.addAttribute("departments", employeeService.getDepartments());
+        return "/hrm/employee/edit";
+    }
+
+    @PostMapping("/edit")
+    public String edit(
+        Authentication auth,
+        @RequestParam("employeeId") String employeeId,
+        @RequestParam("username") String username,
+        @RequestParam("salaryYear") Integer salaryYear,
+        @RequestParam(value = "sDate", required = false) String sDate,
+        @RequestParam(value = "dependents", required = false) Integer dependents,
+        @RequestParam(value = "children", required = false) Integer children,
+        @RequestParam("jobId") String jobId,
+        @RequestParam("deptId") String deptId,
+        @RequestParam(value = "email", required = false) String email
+    ) {
+        if (!isHr(auth)) {
+            return "redirect:/main";
+        }
+        java.time.LocalDate hire = null;
+        if (sDate != null && !sDate.isBlank()) {
+            hire = java.time.LocalDate.parse(sDate);
+        }
+
+        EmployeeDto dto = new EmployeeDto();
+        dto.setEmployeeId(employeeId);
+        dto.setUsername(username);
+        dto.setSalaryYear(salaryYear);
+        dto.setHireDate(hire);
+        dto.setDependents(dependents);
+        dto.setChildren(children);
+        dto.setJobId(jobId);
+        dto.setDeptId(deptId);
+        dto.setEmail(email);
+
+        employeeService.updateEmployee(dto);
         return "redirect:/employee/manage";
     }
 }

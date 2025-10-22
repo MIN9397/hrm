@@ -26,6 +26,9 @@ public class EmployeeService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private MailService mailService;
+
     public List<EmployeeDto> getEmployees() {
         return employeeMapper.findAllEmployees();
     }
@@ -43,10 +46,14 @@ public class EmployeeService {
         String employeeCode = employeeMapper.generateEmployeeCode(dto.getDeptId());
 
         // 비밀번호는 고정값 "1234"를 암호화하여 저장
-        String encoded = passwordEncoder.encode("1234");
+        String rawPassword = "1234";
+        String encoded = passwordEncoder.encode(rawPassword);
 
-        // 기본 ROLE_ID는 1, enabled는 1로 저장
-        String defaultRoleId = "1";
+        // 부서가 1이면 ROLE_ID는 2(HR), 그 외에는 기본 1
+        String roleIdToUse = "1";
+        if ("1".equals(dto.getDeptId())) {
+            roleIdToUse = "2";
+        }
 
         java.sql.Date sDate = dto.getHireDate() != null ? java.sql.Date.valueOf(dto.getHireDate()) : null;
 
@@ -56,15 +63,60 @@ public class EmployeeService {
             encoded,
             dto.getJobId(),
             dto.getDeptId(),
-            defaultRoleId,
+            roleIdToUse,
             dto.getSalaryYear(),
             sDate,
             dto.getDependents(),
-            dto.getChildren()
+            dto.getChildren(),
+            dto.getEmail()
         );
+        // 이메일 발송 (등록 완료 안내)
+        if (dto.getEmail() != null && !dto.getEmail().isEmpty()) {
+            mailService.sendEmployeeRegisterMail(dto.getEmail(), employeeCode, rawPassword);
+        }
     }
 
     public void toggleEnabled(String employeeId) {
         employeeMapper.toggleEnabled(employeeId);
+    }
+
+        public EmployeeDto getEmployeeById(String employeeId) {
+            return employeeMapper.findEmployeeById(employeeId);
+        }
+
+        public void updateMyEmail(String employeeId, String email) {
+            employeeMapper.updateEmail(employeeId, email);
+        }
+
+        public void updateMyPassword(String employeeId, String rawPassword) {
+            String encoded = passwordEncoder.encode(rawPassword);
+            employeeMapper.updatePassword(employeeId, encoded);
+        }
+
+        public void resignEmployee(String employeeId) {
+            employeeMapper.resignEmployee(employeeId);
+        }
+
+    public void updateEmployee(EmployeeDto dto) {
+        java.sql.Date sDate = dto.getHireDate() != null ? java.sql.Date.valueOf(dto.getHireDate()) : null;
+        employeeMapper.updateEmployee(
+            dto.getEmployeeId(),
+            dto.getUsername(),
+            dto.getJobId(),
+            dto.getDeptId(),
+            dto.getSalaryYear(),
+            sDate,
+            dto.getDependents(),
+            dto.getChildren(),
+            dto.getEmail()
+        );
+    }
+
+    public byte[] getProfileImage(String employeeId) {
+        return employeeMapper.getProfileImage(employeeId);
+    }
+
+    public void updateMyImage(String employeeId, byte[] img) {
+        employeeMapper.updateProfileImage(employeeId, img);
     }
 }
