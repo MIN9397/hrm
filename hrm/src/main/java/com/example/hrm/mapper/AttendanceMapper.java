@@ -15,6 +15,7 @@ public interface AttendanceMapper {
 	
 	
 	List<AttendanceDto> getAllAttendance();
+	void updateAttendance(AttendanceDto dto);
 	
 	
 }

@@ -57,13 +57,13 @@
             }
 
             // 조회 버튼 클릭 시 캘린더만 갱신
-            btn.addEventListener("click", function () {
+            btn?.addEventListener("click", function () {
                 const employeeId = input.value.trim();
                 loadAttendance(employeeId);
             });
 
             // Enter 키로도 조회 가능
-            input.addEventListener("keydown", function (e) {
+            input?.addEventListener("keydown", function (e) {
                 if (e.key === "Enter") {
                     e.preventDefault();
                     btn.click();
@@ -87,12 +87,16 @@
     <h2>근태 관리 시스템</h2>
 
     <!-- form 대신 비동기 버튼으로 처리 -->
-    <div class="form-area">
-        <label>직원 ID: </label>
-        <input type="number" id="employeeId" name="employeeId" required value="${employeeId}"/>
-        <button type="button" id="searchBtn">조회</button>
-    </div>
-
+    <c:if test="${deptId eq '1'}">
+	    <div class="form-area">
+	        <label>직원 ID: </label>
+	        <input type="number" id="employeeId" name="employeeId" required value="${employeeId}"/>
+	        <button type="button" id="searchBtn">조회</button>
+	    </div>
+	</c:if>
+	<c:if test="${deptId ne '1'}">
+            <input type="hidden" id="employeeId" name="employeeId" value="${employeeId}"/>
+        </c:if>
     <div id="calendar"></div>
     </div>
     </div>

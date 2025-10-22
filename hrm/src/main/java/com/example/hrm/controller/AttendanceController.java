@@ -45,20 +45,33 @@ public class AttendanceController {
 	    return "/hrm/attendance"; // /WEB-INF/views/attendance.jsp
 	}
 
-	@GetMapping("/vacation/page")
-	public String vacationPage(@AuthenticationPrincipal UserDetails user, Model model) {
-        if (user == null) {
-            return "redirect:/login";
-        }
+	@GetMapping("/vacation")
+	public String vacationPage(
+            @AuthenticationPrincipal UserDetails user,
+            @RequestParam(value = "employeeId", required = false) Integer employeeId,
+            Model model) {
+
+        if (user == null) return "redirect:/login";
 
         UserDto userInfo = loginMapper.findByEmployeeCode(user.getUsername());
-        int employeeId = Integer.parseInt(userInfo.getEmployeeId());
+        int loginEmployeeId = Integer.parseInt(userInfo.getEmployeeId());
         int deptId = Integer.parseInt(userInfo.getDeptId());
 
-        // 본인 또는 전체 목록
-        List<VacationDto> vacations = (deptId == 1)
-                ? vacationService.getAllVacations() // 관리자: 전체 휴가 조회
-                : vacationService.getVacationList(employeeId); // 일반직원: 본인만
+        List<VacationDto> vacations = new ArrayList<>();
+
+        // ✅ 관리자면: 검색용 employeeId가 있으면 해당 직원 조회, 없으면 전체
+        if (deptId == 1) {
+            if (employeeId != null) {
+                vacations = vacationService.getVacationList(employeeId);
+            } else {
+                vacations = vacationService.getAllVacations();
+            }
+        }
+        // ✅ 일반직원이면: 자기 것만 조회
+        else {
+            employeeId = loginEmployeeId;
+            vacations = vacationService.getVacationList(loginEmployeeId);
+        }
 
         model.addAttribute("employeeId", employeeId);
         model.addAttribute("deptId", deptId);
@@ -80,33 +93,42 @@ public class AttendanceController {
         }
 
         vacationService.insertVacation(vacation);
-        return "redirect:/vacation/page";
+        return "redirect:/vacation";
     }
     @PostMapping("/vacation/approve")
     public String approveVacation(@RequestParam("leaveId") int leaveId) {
         vacationService.updateVacationStatus(leaveId, "승인");
-        return "redirect:/vacation/page";
+        return "redirect:/vacation";
     }
     @PostMapping("/vacation/reject")
     public String rejectVacation(@RequestParam("leaveId") int leaveId) {
         vacationService.updateVacationStatus(leaveId, "반려");
-        return "redirect:/vacation/page";
+        return "redirect:/vacation";
     }
     @PostMapping("/vacation/delete")
-    public String deleteVacation(@RequestParam("leaveId") int leaveId,
-                                 @RequestParam("employeeId") int employeeId,
-                                 Model model) {
+    public String deleteVacation(
+            @RequestParam("leaveId") int leaveId,
+            @AuthenticationPrincipal UserDetails user) {
 
-        vacationService.deleteVacation(leaveId);
+        UserDto userInfo = loginMapper.findByEmployeeCode(user.getUsername());
+        int employeeId = Integer.parseInt(userInfo.getEmployeeId());
+        int deptId = Integer.parseInt(userInfo.getDeptId());
 
-        // 삭제 후 다시 리스트 조회
-        List<VacationDto> vacations = vacationService.getVacationList(employeeId);
-        model.addAttribute("vacations", vacations);
-        model.addAttribute("employeeId", employeeId);
+        // ✅ 관리자면 전체 삭제 가능, 일반직원은 본인 것만 삭제 가능
+        if (deptId == 1) {
+            vacationService.deleteVacation(leaveId);
+        } else {
+            // 본인 소유 휴가만 삭제하도록 검증
+            VacationDto vacation = vacationService.getVacationById(leaveId);
+            if (vacation != null && vacation.getEmployeeId() == employeeId) {
+                vacationService.deleteVacation(leaveId);
+            } else {
+                throw new IllegalStateException("권한이 없습니다.");
+            }
+        }
 
-        return "/hrm/vacation";
+        return "redirect:/vacation";
     }
-
 
     /* 휴가 목록 조회
     
@@ -119,35 +141,52 @@ public class AttendanceController {
     */
 	
 	@GetMapping("/api/attendance/jsp")
-	public String getAttendanceForJsp(@RequestParam(value = "employeeId", required = false) Integer employeeId, Model model) {
-	    List<AttendanceDto> attendanceList = new ArrayList<>();
-	    
-	    if(employeeId != null) {
-	    		attendanceList = service.getAttendance(employeeId);
-	    
-	    for (AttendanceDto att : attendanceList) {
-	    	if (att != null) {
-	        System.out.println("날짜: " + att.getWorkDate());
-	        System.out.println("출근: " + att.getCheckInTime());
-	        System.out.println("퇴근: " + att.getCheckOutTime());
-	        System.out.println("부서: " + att.getDeptId());
-	    }else {
-	    	System.out.println("att is null");
+	public String getAttendanceForJsp(
+			@AuthenticationPrincipal UserDetails user,
+			@RequestParam(value = "employeeId", required = false) Integer employeeId, Model model) {
+		// ✅ 로그인 정보 가져오기
+	    UserDto userInfo = loginMapper.findByEmployeeCode(user.getUsername());
+	    int loginEmployeeId = Integer.parseInt(userInfo.getEmployeeId());
+	    int deptId = Integer.parseInt(userInfo.getDeptId());
+
+	    // ✅ 관리자(deptId == 1)는 선택한 직원ID 조회 가능, 아니면 본인 ID 고정
+	    if (deptId != 1) {
+	        employeeId = loginEmployeeId;
+	    } else if (employeeId == null) {
+	        // 관리자가 처음 접속했을 때는 자신의 ID로 기본 표시
+	        employeeId = loginEmployeeId;
 	    }
-	    }
-	    }else {
-	        System.out.println("⚠ employeeId가 전달되지 않았습니다. 전체 조회 또는 빈 리스트 반환합니다.");
-	    }
-	    
-	    model.addAttribute("employeeId", employeeId); // 추가
+
+	    // ✅ 근태 정보 조회
+	    List<AttendanceDto> attendanceList = service.getAttendance(employeeId);
+
+	    // ✅ JSP로 값 전달
+	    model.addAttribute("employeeId", employeeId);
+	    model.addAttribute("deptId", deptId);
+	    model.addAttribute("username", userInfo.getUsername());
 	    model.addAttribute("attendanceList", attendanceList);
-	  
-	    return "/hrm/attendance"; // JSP 렌더링
+
+	    System.out.println("✅ 로그인 사용자 employeeId = " + loginEmployeeId);
+	    System.out.println("✅ 로그인 사용자 deptId = " + deptId);
+	    System.out.println("✅ 조회할 employeeId = " + employeeId);
+
+	    return "/hrm/attendance"; // JSP
 	}
 	@ResponseBody
     @GetMapping("/api/attendance/list")
-    public List<Map<String, Object>> getAttendanceList(@RequestParam(required = false) Integer employeeId) {
+    public List<Map<String, Object>> getAttendanceList(
+    		@AuthenticationPrincipal UserDetails user,
+    		@RequestParam(required = false) Integer employeeId) {
 
+		UserDto userInfo = loginMapper.findByEmployeeCode(user.getUsername());
+	    int loginEmployeeId = Integer.parseInt(userInfo.getEmployeeId());
+	    int deptId = Integer.parseInt(userInfo.getDeptId());
+
+	    // ✅ 일반직원은 자기 것만 볼 수 있음
+	    if (deptId != 1) {
+	        employeeId = loginEmployeeId;
+	    }
+		
 		List<AttendanceDto> attendanceList = (employeeId != null)
                 ? service.getAttendance(employeeId)
                 : service.getAllAttendance();
@@ -170,21 +209,23 @@ public class AttendanceController {
                 events.add(checkOut);
             }
         }
-
-        List<VacationDto> vList = vacationService.getVacationList(0);
-        for (VacationDto v : vList) {
+     // ✅ 휴가 일정 추가 (자기 휴가만)
+        List<VacationDto> vacationList = vacationService.getVacationList(employeeId);
+        for (VacationDto v : vacationList) {
             Map<String, Object> e = new HashMap<>();
-            e.put("title", v.getLeaveType());
-            e.put("start", v.getStartDate().toString());
-            e.put("end", v.getEndDate().toString());
+            e.put("title", v.getLeaveType() + " (" + v.getStatus() + ")"); // ✅ 상태(승인/반려/대기) 표시
+            e.put("start", v.getStartDate());
+            e.put("end", v.getEndDate());
+            e.put("color", "#2196F3");
             events.add(e);
         }
         return events;
 
     }
 	/** 출퇴근 페이지 (로그인 유저 기반) */
-    @GetMapping("/attendance/page")
-    public String attendancePage(@AuthenticationPrincipal UserDetails user, Model model) {
+    @GetMapping("/check")
+    public String attendancePage(@AuthenticationPrincipal UserDetails user, @RequestParam(value = "employeeId", required = false) Integer employeeId,
+            Model model) {
         if (user == null) {
             return "redirect:/login";
         }
@@ -194,17 +235,32 @@ public class AttendanceController {
         System.out.println("✅ 로그인된 사원 코드: " + user.getUsername());
         System.out.println("✅ DB 조회 결과 employeeId: " + userInfo.getEmployeeId());
         System.out.println("✅ DB 조회 결과 deptId: " + userInfo.getDeptId());
-        int employeeId = Integer.parseInt(userInfo.getEmployeeId());
+        int loginEmployeeId = Integer.parseInt(userInfo.getEmployeeId());
         int deptId = Integer.parseInt(userInfo.getDeptId());
 
         // 근태 기록 불러오기
-        List<AttendanceDto> attendanceList = service.getAttendance(employeeId);
+        List<AttendanceDto> attendanceList = new ArrayList<>();
+
+        // ✅ 관리자면 모든 직원 근태 즉시 조회
+        if (deptId == 1) {
+            if (employeeId != null) {
+                attendanceList = service.getAttendance(employeeId);
+            } else {
+                attendanceList = service.getAllAttendance(); // 전체 조회
+            }
+        } 
+        // ✅ 일반 직원이면 본인 것만 조회
+        else {
+            employeeId = loginEmployeeId;
+            attendanceList = service.getAttendance(loginEmployeeId);
+        }
+
         model.addAttribute("attendanceList", attendanceList);
         model.addAttribute("employeeId", employeeId);
         model.addAttribute("deptId", deptId);
         model.addAttribute("username", userInfo.getUsername());
 
-        return "/hrm/check"; // JSP 경로
+        return "/hrm/check"; // JSP
     }
 
     /** 출근 버튼 */
@@ -214,7 +270,7 @@ public class AttendanceController {
         int employeeId = Integer.parseInt(userInfo.getEmployeeId());
         int deptId = Integer.parseInt(userInfo.getDeptId());
         service.checkIn(employeeId, deptId);
-        return "redirect:/attendance/page";
+        return "redirect:/check";
     }
 
     @PostMapping("/attendance/checkout")
@@ -222,7 +278,20 @@ public class AttendanceController {
         UserDto userInfo = loginMapper.findByEmployeeCode(user.getUsername());
         int employeeId = Integer.parseInt(userInfo.getEmployeeId());
         service.checkOut(employeeId);
-        return "redirect:/attendance/page";
+        return "redirect:/check";
+    }
+    
+    @PostMapping("/attendance/update")
+    public String updateAttendance(@AuthenticationPrincipal UserDetails user, AttendanceDto dto) {
+        UserDto userInfo = loginMapper.findByEmployeeCode(user.getUsername());
+        int deptId = Integer.parseInt(userInfo.getDeptId());
+
+        if (deptId != 1) {
+            throw new IllegalStateException("관리자 권한이 없습니다.");
+        }
+
+        service.updateAttendance(dto);
+        return "redirect:/check";
     }
 
 	@GetMapping("/vacation/list")

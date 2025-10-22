@@ -60,7 +60,15 @@
     <div class="content-area">
         <h2>근태 관리</h2>
         <p>사원명: ${username} | 사원번호: ${employeeId} | 부서번호: ${deptId}</p>
-
+		<c:if test="${deptId == 1}">
+            <form method="get" action="/check" style="margin-bottom: 10px;">
+                <label>직원 ID 검색:</label>
+                <input type="number" name="employeeId" placeholder="직원 ID 입력" value="${employeeId}">
+                <button type="submit">검색</button>
+            </form>
+        </c:if>
+			
+	<c:if test="${deptId != 1}">	
         <form action="/attendance/checkin" method="post" style="display:inline;">
             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
             <button type="submit" class="checkin">출근</button>
@@ -70,7 +78,7 @@
             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
             <button type="submit" class="checkout">퇴근</button>
         </form>
-
+	</c:if>
         <h3>출퇴근 기록</h3>
         <table>
             <thead>
@@ -86,6 +94,19 @@
                         <td>${a.workDate}</td>
                         <td>${a.checkInTime}</td>
                         <td>${a.checkOutTime}</td>
+                        <td>
+                            <!-- ✅ 관리자만 수정 가능 -->
+                            <c:if test="${deptId == 1}">
+                                <form action="/attendance/update" method="post" style="display:inline;">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                    <input type="hidden" name="attendanceId" value="${a.attendanceId}" />
+                                    
+                                    <input type="time" name="checkInTime" value="${a.checkInTime}" required />
+                                    <input type="time" name="checkOutTime" value="${a.checkOutTime}" />
+                                    <button type="submit">수정</button>
+                                </form>
+                            </c:if>
+                        </td>
                     </tr>
                 </c:forEach>
             </tbody>

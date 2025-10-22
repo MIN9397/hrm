@@ -50,18 +50,18 @@ public class HelloController {
 		}
 		return "/hrm/main";
 	}
-	@GetMapping("/vacation")
+	/*@GetMapping("/vacation")
 	private String vacation() {
 		return "/hrm/vacation";
-	}
+	}*/
 	@GetMapping("/attendance")
 	private String attendance() {
 		return "/hrm/attendance";
 	}
-	@GetMapping("/check")
+	/*@GetMapping("/check")
 	private String check() {
 		return "/hrm/check";
-	}
+	}*/
 	@GetMapping("/department")
 	private String department() {
 		return "/hrm/department";
