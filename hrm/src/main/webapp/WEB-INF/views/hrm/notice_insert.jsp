@@ -4,123 +4,86 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+
+<title>공지 사항 작성 페이지</title>
+<!-- Optional: Bootstrap CDN for quick styling (삭제하거나 로컬로 변경 가능) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 <style>
-
-.main-content {
-  padding: 20px;
-}
-
-/* 상단 3박스 */
-.top-boxes {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;   /* 가로·세로 간격 */
-  margin-bottom: 30px;
-}
-
-.top-boxes .box {
-  width: 500px;
-  height: 400px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
-  padding: 20px;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-.profile-box {
-  text-align: center;
-  cursor: pointer;
-}
-
-.profile-box .profile-img {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  margin-bottom: 15px;
-}
-
-/* 리스트 스타일 */
-.notice-box ul,
-.inquiry-box ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.notice-box li,
-.inquiry-box li {
-  margin-bottom: 10px;
-}
-
-.notice-box a,
-.inquiry-box a {
-  text-decoration: none;
-  color: #333;
-}
-
-.notice-box a:hover,
-.inquiry-box a:hover {
-  text-decoration: underline;
-}
-
-/* 하단 영역 */
-.bottom-boxes {
-  display: flex;
-  gap: 20px;   /* 가로·세로 간격 */
-  gap: 20px;
-}
-
-.graph-area {
-  flex: 4; /* 40% */
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
-  padding: 20px;
-}
-
-.status-area {
-  flex: 6; /* 60% */
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
-  padding: 20px;
-}
-
-
-
-
+/* 간단한 커스텀 스타일 */
+.container { max-width: 900px; margin-top: 30px; }
+.required { color: #d00; }
 </style>
-
-
 
 </head>
 <body>
 
 <%@include file="/hrm/side.jsp" %>
 
-<div class="main-content">
-  <!-- 상단 3박스 -->
-  <div class="top-boxes">
-    
+	<div class="container">
+		<h1 class="mb-4">공지사항 작성</h1>
 
-    <!-- 공지사항 -->
-    <div class="box notice-box">
-      <h3>공지사항</h3>
-      <ul>
-        <li><a href="#">공지사항 제목 1</a></li>
-        <li><a href="#">공지사항 제목 2</a></li>
-        <li><a href="#">공지사항 제목 3</a></li>
-        <li><a href="#">공지사항 제목 4</a></li>
-        <li><a href="#">공지사항 제목 5</a></li>
-      </ul>
-    </div>
 
-  </div>
-</div>
+		<!-- 서버에서 전달되는 에러/메시지 출력 -->
+		<c:if test="${not empty error}">
+			<div class="alert alert-danger">${error}</div>
+		</c:if>
+		<c:if test="${not empty success}">
+			<div class="alert alert-success">${success}</div>
+		</c:if>
 
+
+		<!-- 공지 작성 폼: enctype="multipart/form-data"는 파일업로드용 -->
+		<!-- action은 서버 측 컨트롤러(예: /notice/save)로 맞춰주세요 -->
+		<form id="noticeForm" method="post"
+			action="${pageContext.request.contextPath}/notice/save"
+			enctype="multipart/form-data">
+
+
+			<!-- 보통 로그인한 사용자의 아이디를 숨겨서 보냄 -->
+			<input type="hidden" name="authorId"
+				value="${sessionScope.loginUser != null ? sessionScope.loginUser.id : ''}" />
+
+
+			<div class="mb-3">
+				<label for="title" class="form-label">제목 <span
+					class="required">*</span></label> <input type="text" class="form-control"
+					id="title" name="title" maxlength="200"
+					value="${param.title != null ? param.title : ''}" required>
+			</div>
+
+
+
+
+
+			<div class="mb-3">
+				<label for="content" class="form-label">내용 <span
+					class="required">*</span></label>
+				<textarea class="form-control" id="content" name="content" rows="12"
+					required>${param.content != null ? param.content : ''}</textarea>
+				<div class="form-text"></div>
+			</div>
+
+
+
+
+			<div class="d-flex gap-2">
+				<button type="submit" class="btn btn-primary">저장</button>
+				<a href="${pageContext.request.contextPath}/notice/list"
+					class="btn btn-secondary">목록으로</a>
+
+			</div>
+		</form>
+
+	</div>
+
+
+
+
+	<script>
+		document.getElementById('noticeForm').addEventListener('submit',
+				function(e) {
+				});
+	</script>
 
 </body>
 </html>
