@@ -5,123 +5,178 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>공지사항 목록</title>
 <style>
-
-.main-content {
-  padding: 20px;
+body {
+  font-family: "맑은 고딕", sans-serif;
+  background-color: #f6f7fb;
+  margin: 0;
+  padding: 0;
 }
 
-/* 상단 3박스 */
-.top-boxes {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;   /* 가로·세로 간격 */
-  margin-bottom: 30px;
-}
-
-.top-boxes .box {
-  width: 500px;
-  height: 800px;
+.container {
+  width: 1000px;
+  margin: 50px auto;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
-  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 30px;
   box-sizing: border-box;
-  overflow: hidden;
 }
 
-.profile-box {
+h2 {
   text-align: center;
-  cursor: pointer;
+  margin-bottom: 25px;
+  font-size: 24px;
+  color: #333;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
 }
 
-.profile-box .profile-img {
-  width: 120px;
-  height: 200px;
-  border-radius: 50%;
-  margin-bottom: 15px;
+/* 테이블 */
+.notice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
 }
 
-/* 리스트 스타일 */
-.notice-box ul,
-.inquiry-box ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.notice-table th, .notice-table td {
+  padding: 12px 10px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+  font-size: 15px;
 }
 
-.notice-box li,
-.inquiry-box li {
-  margin-bottom: 10px;
+.notice-table th {
+  background-color: #f1f3f6;
+  font-weight: bold;
 }
 
-.notice-box a,
-.inquiry-box a {
+.notice-table td.title {
+  text-align: left;
+  padding-left: 15px;
+}
+
+.notice-table a {
   text-decoration: none;
   color: #333;
 }
 
-.notice-box a:hover,
-.inquiry-box a:hover {
+.notice-table a:hover {
+  color: #007bff;
   text-decoration: underline;
 }
 
-/* 하단 영역 */
-.bottom-boxes {
-  display: flex;
-  gap: 20px;   /* 가로·세로 간격 */
-  gap: 20px;
+.notice-table tr:hover {
+  background-color: #f9fbff;
 }
 
-.graph-area {
-  flex: 4; /* 40% */
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
-  padding: 20px;
+/* 버튼 */
+.btn-area {
+  text-align: right;
+  margin-top: 10px;
 }
 
-.status-area {
-  flex: 6; /* 60% */
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
-  padding: 20px;
+.btn-write {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
+.btn-write:hover {
+  background-color: #0056b3;
+}
 
+/* 페이지네이션 */
+.pagination {
+  text-align: center;
+  margin-top: 20px;
+}
 
+.pagination a {
+  display: inline-block;
+  margin: 0 5px;
+  padding: 6px 10px;
+  color: #007bff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-decoration: none;
+}
 
+.pagination a:hover {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+
+.pagination .active {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
 </style>
-
-
-
 </head>
 <body>
 
 <%@include file="/hrm/side.jsp" %>
 
-<div class="main-content">
-  <!-- 상단 3박스 -->
-  <div class="top-boxes">
-    
-    <!-- 공지사항 -->
-    <div class="box notice-box">
-      <h3>공지사항</h3>
-      <button onclick = "location.href = '/notice/insert'">글쓰기</button>
-      <a href="notice_insert.jsp"></a>
-      <ul>
-      	<c:forEach items="${list }" var="notice">
-        	<li><a href="/notice/detail?noticeId=${notice.noticeId }">${notice.title }</a></li>
-        </c:forEach>
-        
-      </ul>
-    </div>
+<div class="container">
+  <h2>공지사항</h2>
 
+  <table class="notice-table">
+    <thead>
+      <tr>
+        <th style="width:80px;">번호</th>
+        <th style="width:500px;">제목</th>
+        <th style="width:120px;">작성자</th>
+        <th style="width:150px;">등록일</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+      <c:if test="${empty list}">
+        <tr><td colspan="5">등록된 공지사항이 없습니다.</td></tr>
+      </c:if>
+
+      <c:forEach items="${list}" var="notice" varStatus="status">
+        <tr>
+          <td>${notice.noticeId}</td>
+          <td class="title">
+            <a href="/notice/detail?noticeId=${notice.noticeId}">
+              ${notice.title}
+            </a>
+          </td>
+          <td>${notice.writer}</td>
+          <td>${notice.issueDate2}</td>
+          
+        </tr>
+      </c:forEach>
+    </tbody>
+  </table>
+
+  <div class="btn-area">
+    <button class="btn-write" onclick="location.href='/notice/insert'">글쓰기</button>
+  </div>
+
+  <!-- 페이지네이션 -->
+  <div class="pagination">
+    <c:if test="${page > 1}">
+      <a href="?page=${page - 1}">이전</a>
+    </c:if>
+
+    <c:forEach begin="1" end="${totalPages}" var="p">
+      <a href="?page=${p}" class="${p == page ? 'active' : ''}">${p}</a>
+    </c:forEach>
+
+    <c:if test="${page < totalPages}">
+      <a href="?page=${page + 1}">다음</a>
+    </c:if>
   </div>
 </div>
-
 
 </body>
 </html>

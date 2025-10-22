@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.hrm.dto.CertificateUserDTO;
@@ -40,7 +41,7 @@ public class MsalaryController {
     public String list(@RequestParam(defaultValue = "1") int page, Model model) {
         int pageSize = 10; // 한 페이지에 보여줄 개수
         int start = (page - 1) * pageSize;
-        int end = page * pageSize;
+        int end = pageSize;
 
         List<SalaryDetailDTO> list = msalary.getList(start, end);
         System.out.println(list); // 상세 출력
@@ -59,6 +60,13 @@ public class MsalaryController {
 
         return "/hrm/msalary"; // JSP
     }
+	
+	@PostMapping("/msalary")
+	public String generateSalary(@RequestParam int year, @RequestParam int month) {
+		msalary.callSalaryProcedure(year, month);
+	    return "redirect:/msalary"; // 완료 후 이동할 페이지
+	}
+
 
 
 }

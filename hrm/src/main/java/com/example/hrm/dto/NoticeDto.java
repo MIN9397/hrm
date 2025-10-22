@@ -1,5 +1,7 @@
 package com.example.hrm.dto;
 
+import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +17,7 @@ public class NoticeDto {
 	private String content     ;
 	private String writer      ;
 	private String created_at  ;
+	private LocalDate issueDate2;
 	
 	
 	
