@@ -12,6 +12,7 @@ import com.example.hrm.dto.EmployeeDto;
 import com.example.hrm.dto.JobDto;
 import com.example.hrm.mapper.EmployeeMapper;
 import com.example.hrm.mapper.JobDepartmentMapper;
+import com.example.hrm.mapper.ChatRepository;
 
 @Service
 @Transactional
@@ -28,6 +29,9 @@ public class EmployeeService {
 
     @Autowired
     private MailService mailService;
+
+    @Autowired
+    private ChatRepository chatRepository;
 
     public List<EmployeeDto> getEmployees() {
         return employeeMapper.findAllEmployees();
@@ -100,11 +104,39 @@ public class EmployeeService {
     public void updateEmployee(EmployeeDto dto) {
         java.sql.Date sDate = dto.getHireDate() != null ? java.sql.Date.valueOf(dto.getHireDate()) : null;
         java.sql.Date birth = dto.getBirth() != null ? java.sql.Date.valueOf(dto.getBirth()) : null;
+
+            // 부서 변경 여부 확인을 위해 기존 정보를 조회
+            EmployeeDto before = employeeMapper.findEmployeeById(dto.getEmployeeId());
+            String oldDeptId = before != null ? before.getDeptId() : null;
+            String newDeptId = dto.getDeptId();
+
+            // 부서가 변경되었다면 기존 부서의 팀 채팅방에서 멤버 제거
+            if (oldDeptId != null && newDeptId != null && !oldDeptId.equals(newDeptId)) {
+                try {
+                    Long oldDeptIdLong = Long.valueOf(oldDeptId);
+                    Integer oldDeptRoomId = chatRepository.findDeptRoomId(oldDeptIdLong);
+                    if (oldDeptRoomId != null) {
+                        Long empIdLong = Long.valueOf(dto.getEmployeeId());
+                        chatRepository.deleteMemberByRoomAndEmployee(oldDeptRoomId, empIdLong);
+                    }
+                } catch (NumberFormatException ignore) {
+                    // employeeId 또는 deptId가 숫자가 아닐 경우 삭제를 생략
+                }
+            }
+
+
+        // 인사부(부서 id '1')는 role_id=2, 그 외는 role_id=1
+        String roleIdToUse = "1";
+        if ("1".equals(dto.getDeptId())) {
+            roleIdToUse = "2";
+        }
+
         employeeMapper.updateEmployee(
             dto.getEmployeeId(),
             dto.getUsername(),
             dto.getJobId(),
             dto.getDeptId(),
+            roleIdToUse,
             dto.getSalaryYear(),
             sDate,
             dto.getDependents(),

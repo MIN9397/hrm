@@ -142,4 +142,10 @@ public class ChatRepository {
         String sql = "INSERT IGNORE INTO chat_members (room_id, employee_id, joined_at) VALUES (?, ?, NOW())";
         jdbc.update(sql, roomId, employeeId);
     }
+
+    // 특정 room_id에서 구성원 제거
+    public int deleteMemberByRoomAndEmployee(Integer roomId, Long employeeId) {
+        String sql = "DELETE FROM chat_members WHERE room_id = ? AND employee_id = ?";
+        return jdbc.update(sql, roomId, employeeId);
+    }
 }
