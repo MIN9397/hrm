@@ -22,7 +22,7 @@
 
 .top-boxes .box {
   width: 500px;
-  height: 400px;
+  height: 800px;
   background: #fff;
   border-radius: 12px;
   box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
@@ -38,7 +38,7 @@
 
 .profile-box .profile-img {
   width: 120px;
-  height: 120px;
+  height: 200px;
   border-radius: 50%;
   margin-bottom: 15px;
 }
@@ -113,7 +113,7 @@
       <a href="notice_insert.jsp"></a>
       <ul>
       	<c:forEach items="${list }" var="notice">
-        	<li><a href="#">${notice.title }</a></li>
+        	<li><a href="/notice/detail?noticeId=${notice.noticeId }">${notice.title }</a></li>
         </c:forEach>
         
       </ul>

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class NoticeDto {
 
-	private int notice_id   ;
+	private int noticeId   ;
 	private int view_count  ;
 	private String title       ;
 	private String content     ;

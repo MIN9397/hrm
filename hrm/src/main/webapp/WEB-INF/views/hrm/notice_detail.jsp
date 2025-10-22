@@ -47,8 +47,8 @@
 			<div class="mb-3">
 				<label for="title" class="form-label">제목 <span
 					class="required">*</span></label> <input type="text" class="form-control"
-					id="title" name="title" maxlength="200"
-					value="${param.title != null ? param.title : ''}" required>
+					id="title" name="title" maxlength="200" readonly
+					value="${dto.title}" required>
 			</div>
 
 
@@ -58,8 +58,8 @@
 			<div class="mb-3">
 				<label for="content" class="form-label">내용 <span
 					class="required">*</span></label>
-				<textarea class="form-control" id="content" name="content" rows="12"
-					required>${param.content != null ? param.content : ''}</textarea>
+				<textarea class="form-control" id="content" name="content" rows="12" readonly
+					required>${dto.content}</textarea>
 				<div class="form-text"></div>
 			</div>
 
@@ -67,7 +67,6 @@
 
 
 			<div class="d-flex gap-2">
-				<button type="submit" class="btn btn-primary">저장</button>
 				<a href="${pageContext.request.contextPath}/notice"
 					class="btn btn-secondary">목록으로</a>
 

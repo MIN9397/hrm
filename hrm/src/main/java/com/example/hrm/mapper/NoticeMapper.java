@@ -10,10 +10,11 @@ import com.example.hrm.dto.NoticeDto;
 
 public interface NoticeMapper {
 
-	@Insert("insert into notice(title, content, writer) values (#{title}, #{content}, 'admin')")
+	@Insert("insert into notice(title, content) values (#{title}, #{content})")
 	int insert(@RequestParam String title, @RequestParam String content);
 	
-	List<NoticeDto> get();
+	@Select("SELECT * FROM  notice where notice_id = #{noticeId}")
+	NoticeDto get(int noticeId);
 	
 	@Select("SELECT * FROM  notice")
 	public List<NoticeDto> getList();
