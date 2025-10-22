@@ -38,6 +38,19 @@
         <input type="email" name="email" class="form-control" placeholder="example@company.com" value="${employee.email}" />
       </div>
 
+      <div class="col-md-12">
+        <label class="form-label">주소</label>
+        <input type="text" name="address" class="form-control" placeholder="주소를 입력하세요" value="${employee.address}" />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">전화번호</label>
+        <input type="tel" name="phone" class="form-control" placeholder="010-1234-5678" value="${employee.phone}" />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">생년월일</label>
+        <input type="date" name="birth" class="form-control" value="${employee.birth}" />
+      </div>
+
       <div class="col-md-6">
         <label class="form-label">직급</label>
         <select name="jobId" class="form-select" required>

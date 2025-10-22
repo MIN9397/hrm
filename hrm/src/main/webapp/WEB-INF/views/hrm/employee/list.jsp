@@ -57,6 +57,9 @@ body {
               <th>직급</th>
               <th>부서 이름</th>
               <th>이메일</th>
+              <th>주소</th>
+              <th>전화번호</th>
+              <th>생년월일</th>
               <th>입사일</th>
               <th>퇴사일</th>
               <th>부양가족</th>
@@ -72,6 +75,15 @@ body {
                 <td><c:out value="${e.jobTitle}"/></td>
                 <td><c:out value="${e.deptName}"/></td>
                 <td><c:out value="${empty e.email ? '-' : e.email}"/></td>
+                <td><c:out value="${empty e.address ? '-' : e.address}"/></td>
+                <td><c:out value="${empty e.phone ? '-' : e.phone}"/></td>
+                <td><c:choose>
+                      <c:when test="${not empty e.birth}">
+                        <c:out value="${e.birth}"/>
+                      </c:when>
+                      <c:otherwise>-</c:otherwise>
+                    </c:choose>
+                </td>
                 <td><c:choose>
                       <c:when test="${not empty e.hireDate}">
                         <c:out value="${e.hireDate}"/>
@@ -115,7 +127,7 @@ body {
             </c:forEach>
             <c:if test="${empty employees}">
               <tr>
-                <td colspan="9" class="text-center text-muted">사원 데이터가 없습니다.</td>
+                <td colspan="13" class="text-center text-muted">사원 데이터가 없습니다.</td>
               </tr>
             </c:if>
           </tbody>

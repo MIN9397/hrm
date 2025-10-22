@@ -33,7 +33,7 @@ public class ScheduleController {
     @GetMapping("/scheduleList.do")
     public List<ScheduleVO> scheduleList(Authentication auth) {
         UserDto user = (UserDto) auth.getPrincipal();
-        int employeeId = Integer.parseInt(user.getEmployeeId());
+        int employeeId = Integer.parseInt(String.valueOf(user.getEmployeeId()));
         return service.selectScheduleList(employeeId);
     }
 
@@ -42,8 +42,7 @@ public class ScheduleController {
     public ResponseEntity<String> insertSchedule(@RequestBody ScheduleVO vo, Authentication auth){
         // 로그인한 사용자 정보에서 employeeId 가져오기
         UserDto user = (UserDto) auth.getPrincipal();
-        vo.setEmployeeId(Integer.parseInt(user.getEmployeeId()));
-
+        vo.setEmployeeId(Integer.parseInt(String.valueOf(user.getEmployeeId())));
         service.insertSchedule(vo);
         return new ResponseEntity<>("success", HttpStatus.OK);
     }
@@ -52,7 +51,7 @@ public class ScheduleController {
     @PostMapping("/scheduleUpdate.do")
     public ResponseEntity<String> updateSchedule(@RequestBody ScheduleVO vo, Authentication auth) {
         UserDto user = (UserDto) auth.getPrincipal();
-        vo.setEmployeeId(Integer.parseInt(user.getEmployeeId()));
+        vo.setEmployeeId(Integer.parseInt(String.valueOf(user.getEmployeeId())));
         service.updateSchedule(vo);
         return new ResponseEntity<>("success", HttpStatus.OK);
     }
@@ -61,7 +60,7 @@ public class ScheduleController {
     @PostMapping("/scheduleDelete.do")
     public ResponseEntity<String> deleteSchedule(@RequestBody Map<String, Integer> payload, Authentication auth) {
         UserDto user = (UserDto) auth.getPrincipal();
-        int employeeId = Integer.parseInt(user.getEmployeeId());
+        int employeeId = Integer.parseInt(String.valueOf(user.getEmployeeId()));
         int no = payload.get("no");
         service.deleteSchedule(no, employeeId);
         return new ResponseEntity<>("success", HttpStatus.OK);
