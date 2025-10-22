@@ -68,6 +68,35 @@
     color: white;
     border-color: #007bff;
   }
+  
+	  .salary-generate-form {
+	  display: flex;
+	  justify-content: flex-end; /* ✅ 오른쪽 정렬 */
+	  align-items: center;
+	  gap: 10px;
+	  margin: 10px 70px 20px 0; /* 오른쪽 여백 조금 추가 */
+	}
+	
+	.salary-generate-form input {
+	  width: 100px;
+	  padding: 6px 8px;
+	  border: 1px solid #ccc;
+	  border-radius: 4px;
+	}
+	
+	.salary-generate-form button {
+	  padding: 7px 14px;
+	  background-color: #007bff;
+	  border: none;
+	  color: #fff;
+	  border-radius: 6px;
+	  cursor: pointer;
+	}
+	
+	.salary-generate-form button:hover {
+	  background-color: #0056b3;
+	}
+	  
 </style>
 
 </head>
@@ -88,6 +117,16 @@
 <br>
 
 <h2 style="text-align:center;">월별 급여 리스트</h2>
+
+<!-- ✅ 연도, 월 입력 + 월급여 생성 버튼 -->
+<div class="salary-generate-form">
+  <form action="/msalary" method="post">
+    <input type="number" name="year" placeholder="연도" required min="2000" max="2100">
+    <input type="number" name="month" placeholder="월" required min="1" max="12">
+    <button type="submit">월급여 생성</button>
+    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+  </form>
+</div>
 
 <table class="payd-table">
   <thead>

@@ -321,7 +321,7 @@
 
     <!-- 공지사항 -->
     <div class="box notice-box">
-      <h3>공지사항</h3>
+      <h3><a href = "/notice">공지사항</a></h3>
       <ul>
         <li><a href="#">공지사항 제목 1</a></li>
         <li><a href="#">공지사항 제목 2</a></li>
