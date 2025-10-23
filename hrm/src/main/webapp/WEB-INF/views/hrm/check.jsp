@@ -58,7 +58,7 @@
 
     <!-- 본문 컨텐츠 영역 -->
     <div class="content-area">
-        <h2>근태 관리</h2>
+        <h2>근태 관리❤️</h2>
         <p>사원명: ${username} | 사원번호: ${employeeId} | 부서번호: ${deptId}</p>
 		<c:if test="${deptId == 1}">
             <form method="get" action="/check" style="margin-bottom: 10px;">
