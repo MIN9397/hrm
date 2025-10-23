@@ -102,7 +102,7 @@
       <a href="/employee/manage" onclick="showSubmenu('person')">사원 관리</a>
       <a href="/vacation" onclick="showSubmenu('dept')">휴가 관리</a>
       <a href="/check" onclick="showSubmenu('attend')">근태 관리</a>
-      <a href="#" onclick="showSubmenu('salary')">급여 관리</a>
+      <a href="/msalary" onclick="showSubmenu('salary')">급여 관리</a>
     </nav>
 
     <!-- 우측 상단 메뉴 -->
