@@ -22,108 +22,168 @@
   padding: 20px;
 }
 
-/* 상단 3박스 */
-.top-boxes {
+
+.main-area {
   display: flex;
-  justify-content: space-between;
-  gap: 20px;   /* 가로·세로 간격 */
-  margin-bottom: 30px;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
 }
 
-.top-boxes .box {
-  width: 500px;
-  height: 400px;
+/* 왼쪽: 프로필 + 공지 */
+.left-area {
+  display: flex;
+  flex-direction: column;
+  width: 500px; /* 달력과 동일 폭 */
+  gap: 20px;
+}
+
+/* 오른쪽: 달력 */
+.right-area {
+  width: 900px; /* 프로필 영역과 동일 폭 */
+}
+
+/* 프로필 박스 */
+.profile-box {
   background: #fff;
   border-radius: 12px;
   box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
-  padding: 20px;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-.profile-box {
+  padding: 0px;
   text-align: center;
-  cursor: pointer;
-  padding: 20px;
-  color: inherit;
-  display: block;
+  height: 440px; /* 공지보다 길게 설정 */
 }
 
-.profile-box .profile-img {
+.profile-line {
+  width: 470px;          /* 선의 전체 너비 */
+  border: none;          /* 기본 테두리 제거 */
+  border-top: 3px solid #0516f5; /* 선의 굵기와 색상 */
+  margin: 13px auto;
+}
+
+
+.profile-img {
   width: 200px;
   height: 200px;
   border-radius: 50%;
   object-fit: cover;
-  display: block;
-  margin: 0 auto 14px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  opacity: 0.9;
+  margin-bottom: 25px;
+  margin-top: 5px;
 }
 
-.profile-box .profile-info {
-  background: transparent;
-  padding: 0;
-  border-radius: 0;
+
+/* 표 형식 (3행 × 2열 = 6항목) */
+.profile-table {
+  width: 95%;
+  border-collapse: collapse;
+  margin: 0 auto 10px auto;
+  font-size: 14px;
+  margin-bottom: 25px;
 }
 
-.profile-box .profile-info h3,
-.profile-box .profile-info p {
-  margin: 0;
-  color: #222;
-  text-shadow: none;
+.profile-table th {
+  background-color: #f0f0f0; /* 회색 고정 컬럼 */
+  text-align: left;
+  padding: 6px 10px;
+  width: 25%;
+
 }
 
-/* 리스트 스타일 */
-.notice-box ul,
-.inquiry-box ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.profile-table td {
+  text-align: left;
+  padding: 6px 10px;
+  width: 25%;
+  background-color: #fafafa;
 }
 
-.notice-box li,
-.inquiry-box li {
+/* 수정 버튼 */
+.edit-btn {
+  margin-top: 1px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 450px; /* 버튼 너비 고정 */
+  text-align: center; /* 텍스트 중앙정렬 */
+}
+
+.edit-btn:hover {
+  background-color: #0056b3;
+}
+
+
+
+/* 공지사항 박스 */
+.notice-box {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
+  padding: 10px;
+  padding-right: 1px; /* 스크롤 여백 */
+  height: 280px; /* 프로필보다 짧게 */
+  overflow: hidden !important;
+}
+
+/* 공지사항 제목 영역 */
+.notice-box h3 {
+  background-color: #f0f0f0; /* 밝은 회색 */
+  padding: 8px 12px;
+  border-radius: 8px;
   margin-bottom: 10px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  
+  top: 0;
+  z-index: 2;
 }
 
-.notice-box a,
-.inquiry-box a {
+.notice-box h3 a {
+  color: #333;
+  text-decoration: none;
+}
+
+/* 공지사항 목록 */
+.notice-box ul {
+  list-style: none; /* 점 제거 */
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+}
+
+/* 공지 개별 항목 */
+.notice-box li {
+  background-color: rgba(253, 244, 227, 0.4); /* 베이지 + 투명도 0.4 */
+  margin-bottom: 8px;
+  border-radius: 6px;
+  padding: 8px 12px;
+  transition: background-color 0.2s ease;
+  height: 32px; 
+}
+
+
+
+/* 공지 링크 스타일 */
+.notice-box a {
   text-decoration: none;
   color: #333;
+  display: block;
 }
 
-.notice-box a:hover,
-.inquiry-box a:hover {
+.notice-box a:hover {
   text-decoration: underline;
 }
 
-/* 하단 영역 */
-.bottom-boxes {
-  display: flex;
-  gap: 20px;   /* 가로·세로 간격 */
-  gap: 20px;
-}
 
-.graph-area {
-  flex: 4; /* 40% */
+/* 달력 박스 */
+.calendar-box {
   background: #fff;
   border-radius: 12px;
   box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
   padding: 20px;
-}
-
-.status-area {
-  flex: 6; /* 60% */
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
-  padding: 20px;
-}
-.calendar {
-  padding: 20px;
-  flex: 6; /* 60% */
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
+  height: 740px; /* 프로필+공지 높이 합과 비슷하게 */
 }
 
 
@@ -308,44 +368,76 @@
 
 <%@include file="/hrm/side.jsp" %>
 
+<!-- 전체 메인 컨텐츠 -->
 <div class="main-content">
-  <!-- 상단 3박스 -->
-  <div class="top-boxes">
-    <!-- 개인 요약 프로필 -->
-    <div class="box profile-box" onclick="location.href='/mypage'">
-      <img src="/mypage/profile-image?employeeId=${me.employeeId}&t=${imgVersion}" alt="프로필 사진" class="profile-img" onerror="this.src='https://via.placeholder.com/600x400?text=Profile'">
-      <div class="profile-info">
-        <h3>${empty me.username ? '로그인 사용자' : me.username}</h3>
-        <p>사번: ${me.employeeId}</p>
+
+  <div class="main-area">
+    <!-- 왼쪽 영역 (프로필 + 공지사항) -->
+    <div class="left-area">
+      <!-- 프로필 -->
+		<div class="profile-box">
+		 <hr class="profile-line"> <!-- 👈 추가된 부분 -->
+		  <div class="profile-header">
+		 
+		    <img src="/mypage/profile-image?employeeId=${me.employeeId}&t=${imgVersion}" 
+		         alt="프로필 사진" 
+		         class="profile-img"
+		         onerror="this.src='https://via.placeholder.com/600x400?text=Profile'">
+
+		  </div>
+		
+		  <table class="profile-table">
+		    <tr>
+		      <th>이름</th>
+		      <td>${empty me.username ? '로그인 사용자' : me.username}</td>
+		      <th>사번</th>
+		      <td>${me.employeeId}</td>
+		    </tr>
+		    <tr>
+		      <th>부서</th>
+		      <td>${me.deptName}</td>
+		      <th>직책</th>
+		      <td>${me.jobTitle}</td>
+		    </tr>
+		    <tr>
+		      <th>생년월일</th>
+		      <td>${me.birth}</td>
+		      <th>연락처</th>
+		      <td>${me.phone}</td>
+		    </tr>
+		  </table>
+				
+		  <button class="edit-btn" onclick="location.href='/mypage'">프로필 수정</button>
+		</div>
+
+
+      <!-- 공지사항 -->
+      <div class="notice-box">
+        <h3><a href="/notice">공지사항</a></h3>
+        <ul>
+          <c:choose>
+            <c:when test="${not empty noticeTitles}">
+              <c:forEach items="${noticeTitles}" var="title">
+                <li><a href="#">${title}</a></li>
+              </c:forEach>
+            </c:when>
+            <c:otherwise>
+              <li><span class="text-muted">공지사항이 없습니다.</span></li>
+            </c:otherwise>
+          </c:choose>
+        </ul>
       </div>
     </div>
 
-    <!-- 공지사항 -->
-    <div class="box notice-box">
-      <h3><a href = "/notice">공지사항</a></h3>
-      <ul>
-        <c:choose>
-          <c:when test="${not empty noticeTitles}">
-            <c:forEach items="${noticeTitles}" var="title">
-              <li><a href="#">${title}</a></li>
-            </c:forEach>
-          </c:when>
-          <c:otherwise>
-            <li><span class="text-muted">공지사항이 없습니다.</span></li>
-          </c:otherwise>
-        </c:choose>
-      </ul>
+    <!-- 오른쪽 달력 -->
+    <div class="right-area">
+      <div class="calendar-box">
+        <div id='calendar'></div>
+      </div>
     </div>
-
-
-  </div>
-
-  <!-- calender + chat -->
-  <div class="calendar-chat-boxes">
-    <div class="calendar-panel">
-      <div id='calendar'></div>
   </div>
 </div>
+
 
 <script>
   // 공지사항 박스 높이에 맞춰 목록 개수 자동 조정

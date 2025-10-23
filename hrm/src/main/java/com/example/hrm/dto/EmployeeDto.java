@@ -12,6 +12,8 @@ public class EmployeeDto {
     private String jobId;
     private String deptId;
     private String email;
+    private String employeeCode;
+
 
     // 조인으로 조회되는 표시용 필드
     private String jobTitle;

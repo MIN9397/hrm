@@ -1,78 +1,217 @@
-@charset "UTF-8";
-	  body { font-family: "Pretendard", sans-serif; 
-			  margin: 0; 
-			  background: #fafafa;
-			  }
-			  /* 사이드바와 콘텐츠 구분 */
-		.layout {
-		  display: flex;
-		}
-		
-		/* 메인 콘텐츠 */
-		.content {
-		  flex: 1;
-		  padding: 40px;
-		  text-align: center;
-		}
-        h2 { text-align: center; 
-        	margin-bottom: 20px;
-        }
-        form {
-            width: 400px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        label, input, select {
-            display: block;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-        button {
-            padding: 8px 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        table {
-            margin: 30px auto;
-            width: 80%;
-            border-collapse: collapse;
-            background: white;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-        td form {
-		    display: flex;
-		    justify-content: center;
-		    align-items: center;
-		    margin: 0; /* 여백 제거 */
-		    padding: 0;
-		    height: 100%;
-		    border-radius: 12px;
-		}
-		
-		td form button {
-		    padding: 6px 12px;
-		    font-size: 14px;
-		    border-radius: 4px;
-		    border: none;
-		    background-color: #007bff;
-		    color: white;
-		    cursor: pointer;
-		}
-		
-		td form button:hover {
-		    background-color: #0056b3;
-		}
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f7f9fc;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+.layout1 {
+  display: flex;
+  gap: 20px; /* 사이드바와 본문 사이 공간 */
+  padding: 20px;
+
+  margin: 0 auto; /* 화면 중앙 정렬 */
+  box-sizing: border-box;
+}
+
+
+
+/* 오른쪽 본문 영역 스타일 */
+.content {
+  flex-grow: 1; /* 가능한 영역 모두 차지 */
+  background: #fff;
+  padding: 30px 40px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 10px;
+  /* margin 제거해서 좌우 여백 방지 */
+  margin: 0;
+  box-sizing: border-box;
+}
+
+
+.content h2 {
+    font-size: 2rem;
+    margin-bottom: 25px;
+    color: #2c3e50;
+    text-align: center;
+}
+
+/* 이하 기존 폼, 테이블 스타일들은 .content 내부에 있으므로 모두 유지 */
+.content form {
+    margin-bottom: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+}
+
+.content form label {
+    flex: 1 0 120px;
+    font-weight: 600;
+    align-self: center;
+}
+
+.content form input[type="number"],
+.content form input[type="date"],
+.content form select {
+    flex: 2 0 200px;
+    padding: 8px 12px;
+    border: 1.5px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.content form input[type="number"]:focus,
+.content form input[type="date"]:focus,
+.content form select:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+.content form button {
+    background-color: #3498db;
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 10px 25px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    align-self: center;
+    flex: 0 0 auto;
+}
+
+.content form button:hover {
+    background-color: #2980b9;
+}
+
+/* 휴가 목록 제목 */
+.content h3 {
+    margin-top: 50px;
+    margin-bottom: 20px;
+    color: #34495e;
+    text-align: center;
+    font-weight: 700;
+}
+
+/* 테이블 스타일 */
+.content table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.content thead {
+    background-color: #3498db;
+    color: white;
+    font-weight: 700;
+}
+
+.content thead th {
+    padding: 15px 10px;
+    text-align: center;
+}
+
+.content tbody tr {
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.3s ease;
+}
+
+.content tbody tr:hover {
+    background-color: #f1f8ff;
+}
+
+.content tbody td {
+    padding: 12px 10px;
+    text-align: center;
+    font-size: 0.95rem;
+    vertical-align: middle;
+}
+
+/* 상태별 색상 */
+.content .status-approved {
+    color: #27ae60;
+    font-weight: 700;
+}
+
+.content .status-rejected {
+    color: #e74c3c;
+    font-weight: 700;
+}
+
+.content .status-pending {
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+/* 관리 버튼 그룹 */
+.content td form {
+    display: inline-block;
+    margin: 0 3px;
+}
+
+.content td form button {
+    background-color: #2980b9;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 5px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.content td form button:hover {
+    background-color: #1c5980;
+}
+
+/* 삭제 버튼 붉은색 */
+.content td form button[onclick] {
+    background-color: #e74c3c;
+}
+.content td form button[onclick]:hover {
+    background-color: #c0392b;
+}
+
+/* 검색 폼 별도 스타일 */
+.content form[method="get"] {
+    justify-content: flex-start;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.content form[method="get"] label {
+    flex: none;
+    font-weight: 600;
+}
+
+.content form[method="get"] input[type="number"] {
+    flex: none;
+    width: 150px;
+}
+
+/* 반응형 */
+@media (max-width: 640px) {
+    .content form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .content form label, 
+    .content form input, 
+    .content form button {
+        flex: none;
+        width: 100%;
+    }
+
+    .content td form button {
+        padding: 6px 10px;
+        font-size: 0.85rem;
+    }
+}

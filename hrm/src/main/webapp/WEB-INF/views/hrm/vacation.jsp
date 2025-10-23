@@ -12,7 +12,7 @@
 </head>
 <body>
 <%@include file="/hrm/side.jsp" %>
-<div class="layout">
+<div class="layout1">
         <div class="content">
 <h2>휴가 등록</h2>
 
@@ -130,7 +130,7 @@
     </c:otherwise>
 </c:choose>
  </div>
-    </div>
+</div>
     <!-- ✅ 조회 버튼 동작 스크립트 -->
 
 </body>
