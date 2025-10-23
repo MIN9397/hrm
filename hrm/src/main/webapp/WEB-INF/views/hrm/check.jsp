@@ -19,6 +19,13 @@
     color: #2c3e50;
 }
 
+/* 각 열 간격 좁히기 */
+.content-area thead th:nth-child(1) { width: 23%; }  /* 근무일 */
+.content-area thead th:nth-child(2) { width: 23%; }  /* 출근시간 */
+.content-area thead th:nth-child(3) { width: 23%; }  /* 퇴근시간 */
+.content-area thead th:nth-child(4) { width: 31%; }  /* 관리자 수정 */
+
+
 .content-area h2 {
     font-size: 2.2rem;
     margin-bottom: 15px;
@@ -277,16 +284,20 @@
                         <td>${a.checkOutTime}</td>
                         <td>
                             <!-- ✅ 관리자만 수정 가능 -->
-                            <c:if test="${deptId == 1}">
-                                <form action="/attendance/update" method="post" style="display:inline;">
-                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                                    <input type="hidden" name="attendanceId" value="${a.attendanceId}" />
-                                    
-                                    <input type="time" name="checkInTime" value="${a.checkInTime}" required />
-                                    <input type="time" name="checkOutTime" value="${a.checkOutTime}" />
-                                    <button type="submit">수정</button>
-                                </form>
-                            </c:if>
+							<c:if test="${deptId == 1}">
+							    <form action="/attendance/update" method="post" style="display:inline;">
+							        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+							        <input type="hidden" name="attendanceId" value="${a.attendanceId}" />
+							
+							        <div class="time-edit-box">
+							            <input type="time" name="checkInTime" value="${a.checkInTime}" required />
+							            <input type="time" name="checkOutTime" value="${a.checkOutTime}" />
+							        </div>
+							
+							        <button type="submit" class="save-btn">저장</button>
+							    </form>
+							</c:if>
+
                         </td>
                     </tr>
                 </c:forEach>
