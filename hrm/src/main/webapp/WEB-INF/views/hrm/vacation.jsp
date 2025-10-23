@@ -16,11 +16,29 @@
         <div class="content">
 <h2>휴가 등록</h2>
 
+<c:if test="${deptId == 1}">
+    <form method="get" action="/vacation" style="margin-bottom: 15px;">
+        <label for="employeeId">직원 ID 검색:</label>
+        <input type="number" name="employeeId" id="employeeId" value="${employeeId}" placeholder="직원 ID 입력" />
+        <button type="submit">검색</button>
+    </form>
+</c:if>
+
+
 <form method="post" action="/vacation/save">
-    <label for="employeeId">직원 ID</label>
-    <input type="number" name="employeeId" id="employeeId" required value="${employeeId}" <c:if test="${deptId != 1}">readonly</c:if>/>
-	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-	
+    <!-- ✅ 일반직원은 hidden, 관리자면 입력 가능 -->
+    <c:choose>
+        <c:when test="${deptId == 1}">
+            <label for="employeeId">직원 ID</label>
+            <input type="number" name="employeeId" id="employeeId" required value="${employeeId}" />
+        </c:when>
+        <c:otherwise>
+            <input type="hidden" name="employeeId" id="employeeId" value="${employeeId}" />
+        </c:otherwise>
+    </c:choose>
+
+    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+
     <label for="leaveType">휴가 종류</label>
     <select name="leaveType" id="leaveType" required>
         <option value="">-- 선택하세요 --</option>
@@ -38,72 +56,79 @@
 
     <button type="submit">휴가 등록</button>
 </form>
-	<div style="margin-top:10px;">
-     <button type="button" onclick="viewVacationList()">휴가 목록 보기</button>
-	</div>
-	
-	<script>
-function viewVacationList() {
-    const empId = document.getElementById('employeeId').value;
-    if (!empId) {
-        alert("직원 ID를 입력하세요!");
-        return;
-    }
-    window.location.href = '/vacation/list?employeeId=' + empId;
-}
 
-</script>
-	
-<c:if test="${not empty vacations}">
-    <h3 style="text-align:center;">휴가 목록</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>휴가 ID</th>
-                <th>직원 ID</th>
-                <th>휴가 종류</th>
-                <th>시작일</th>
-                <th>종료일</th>
-                <th>삭제</th>
-            </tr>
-        </thead>
-        <tbody>
-            <c:forEach var="v" items="${vacations}">
-<tr>
-    <td>${v.leaveId}</td>
-    <td>${v.employeeId}</td>
-    <td>${v.leaveType}</td>
-    <td>${v.startDate}</td>
-    <td>${v.endDate}</td>
-    <td>${v.status}</td>
-    <td>
-        <c:if test="${deptId == 1}">
-            <!-- ✅ 관리자만 승인/반려 버튼 -->
-            <form action="/vacation/approve" method="post" style="display:inline;">
-                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                <input type="hidden" name="leaveId" value="${v.leaveId}" />
-                <button type="submit">승인</button>
-            </form>
-            <form action="/vacation/reject" method="post" style="display:inline;">
-                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                <input type="hidden" name="leaveId" value="${v.leaveId}" />
-                <button type="submit">반려</button>
-            </form>
-        </c:if>
+<h3 style="text-align:center;">휴가 목록</h3>
 
-        <!-- ✅ 모든 직원이 사용할 수 있는 삭제 버튼 -->
-        <form method="post" action="/vacation/delete" style="display:inline;">
-            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-            <input type="hidden" name="leaveId" value="${v.leaveId}" />
-            <button type="submit" onclick="return confirm('삭제하시겠습니까?');">삭제</button>
-        </form>
-    </td>
-</tr>
-</c:forEach>
+<c:choose>
+    <c:when test="${not empty vacations}">
+        <table>
+            <thead>
+                <tr>
+                    <th>휴가 ID</th>
+                    <th>직원 ID</th>
+                    <th>휴가 종류</th>
+                    <th>시작일</th>
+                    <th>종료일</th>
+                    <th>상태</th>
+                    <th>관리</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach var="v" items="${vacations}">
+                    <tr>
+                        <td>${v.leaveId}</td>
+                        <td>${v.employeeId}</td>
+                        <td>${v.leaveType}</td>
+                        <td>${v.startDate}</td>
+                        <td>${v.endDate}</td>
+                        <td>${v.status}</td>
+                        <!-- ✅ 승인 상태 표시 -->
+	                    <td>
+	                        <c:choose>
+	                            <c:when test="${v.status == '승인'}">
+	                                <span style="color:green; font-weight:bold;">${v.status}</span>
+	                            </c:when>
+	                            <c:when test="${v.status == '반려'}">
+	                                <span style="color:red; font-weight:bold;">${v.status}</span>
+	                            </c:when>
+	                            <c:otherwise>
+	                                <span style="color:gray;">대기중</span>
+	                            </c:otherwise>
+	                        </c:choose>
+	                    </td>
+                        <td>
+                            <c:if test="${deptId == 1}">
+                                <!-- 관리자 승인/반려 -->
+                                <form action="/vacation/approve" method="post" style="display:inline;">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                    <input type="hidden" name="leaveId" value="${v.leaveId}" />
+                                    <button type="submit">승인</button>
+                                </form>
+                                <form action="/vacation/reject" method="post" style="display:inline;">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                    <input type="hidden" name="leaveId" value="${v.leaveId}" />
+                                    <button type="submit">반려</button>
+                                </form>
+                            </c:if>
 
-        </tbody>
-    </table>
-</c:if>
+                            <!-- 모든 직원 삭제 가능 -->
+                            <form method="post" action="/vacation/delete" style="display:inline;">
+                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                <input type="hidden" name="leaveId" value="${v.leaveId}" />
+                                <button type="submit" onclick="return confirm('삭제하시겠습니까?');">삭제</button>
+                            </form>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </tbody>
+        </table>
+    </c:when>
+
+    
+    <c:otherwise>
+        <p style="text-align:center; color:gray;">등록된 휴가가 없습니다.</p>
+    </c:otherwise>
+</c:choose>
  </div>
     </div>
     <!-- ✅ 조회 버튼 동작 스크립트 -->

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -32,6 +33,7 @@ public class MailController {
             @RequestParam("toEmail") String toEmail,
             @RequestParam(value = "subject", required = false) String subject,
             @RequestParam("content") String content,
+            @RequestParam(value = "attachments", required = false) MultipartFile[] attachments,
             Authentication auth,
             RedirectAttributes ra
     ) {
@@ -46,7 +48,7 @@ public class MailController {
         }
 
         try {
-            mailService.sendMail(fromEmail, toEmail, subject, content);
+            mailService.sendMail(fromEmail, toEmail, subject, content, attachments);
             ra.addFlashAttribute("success", "메일을 성공적으로 전송했습니다.");
         } catch (Exception e) {
             ra.addFlashAttribute("error", "메일 전송에 실패했습니다: " + e.getMessage());

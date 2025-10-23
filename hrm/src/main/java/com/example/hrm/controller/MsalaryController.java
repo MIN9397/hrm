@@ -30,8 +30,8 @@ public class MsalaryController {
 	}
 	
 	@GetMapping("/certificate")
-	public String CertificateUser(@RequestParam("employee_id") int employee_id, Model model) {
-		CertificateUserDTO certi = msalary.selectCeUserById(employee_id);
+	public String CertificateUser(@RequestParam("employeeId") int employeeId, Model model) {
+		CertificateUserDTO certi = msalary.selectCeUserById(employeeId);
 	    System.out.println(certi);
 	    model.addAttribute("certi", certi);
 	    return "/hrm/certificate"; 

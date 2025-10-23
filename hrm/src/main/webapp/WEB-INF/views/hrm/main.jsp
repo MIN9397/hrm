@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -323,43 +324,22 @@
     <div class="box notice-box">
       <h3><a href = "/notice">공지사항</a></h3>
       <ul>
-        <li><a href="#">공지사항 제목 1</a></li>
-        <li><a href="#">공지사항 제목 2</a></li>
-        <li><a href="#">공지사항 제목 3</a></li>
-        <li><a href="#">공지사항 제목 4</a></li>
-        <li><a href="#">공지사항 제목 5</a></li>
+        <c:choose>
+          <c:when test="${not empty noticeTitles}">
+            <c:forEach items="${noticeTitles}" var="title">
+              <li><a href="#">${title}</a></li>
+            </c:forEach>
+          </c:when>
+          <c:otherwise>
+            <li><span class="text-muted">공지사항이 없습니다.</span></li>
+          </c:otherwise>
+        </c:choose>
       </ul>
     </div>
 
-    <!-- 문의사항 -->
-    <div class="box inquiry-box">
-      <h3>문의사항</h3>
-      <ul>
-        <li><a href="#">문의 제목 1</a></li>
-        <li><a href="#">문의 제목 2</a></li>
-        <li><a href="#">문의 제목 3</a></li>
-        <li><a href="#">문의 제목 4</a></li>
-        <li><a href="#">문의 제목 5</a></li>
-      </ul>
-    </div>
+
   </div>
 
-  <!-- 하단 그래프 + 현황판 -->
-  <div class="bottom-boxes">
-    <div class="graph-area">
-      <!-- 그래프 들어갈 자리 -->
-      <canvas id="chart"></canvas>
-    </div>
-    <div class="status-area">
-      <h3>출근 현황</h3>
-      <ul>
-        <li>홍길동 - 출근</li>
-        <li>김철수 - 지각</li>
-        <li>이영희 - 결근</li>
-        <!-- etc -->
-      </ul>
-    </div>
-  </div>
   <!-- calender + chat -->
   <div class="calendar-chat-boxes">
     <div class="calendar-panel">
@@ -367,6 +347,57 @@
   </div>
 </div>
 
+<script>
+  // 공지사항 박스 높이에 맞춰 목록 개수 자동 조정
+  function fitNoticeItems() {
+    const box = document.querySelector('.notice-box');
+    if (!box) return;
+    const list = box.querySelector('ul');
+    const header = box.querySelector('h3');
+    if (!list || !header) return;
+
+    const getNum = (v) => {
+      const n = parseFloat(v);
+      return isNaN(n) ? 0 : n;
+    };
+
+    const boxStyle = getComputedStyle(box);
+    const headerStyle = getComputedStyle(header);
+
+    // 박스 내부에서 리스트가 사용할 수 있는 최대 높이 계산
+    const available = box.clientHeight
+      - header.offsetHeight
+      - getNum(headerStyle.marginBottom)
+      - getNum(boxStyle.paddingTop)
+      - getNum(boxStyle.paddingBottom);
+
+    // 모든 항목을 일단 보이게 한 뒤, 넘치는 항목만 감춤
+    const items = Array.from(list.children);
+    items.forEach(li => li.classList.remove('d-none'));
+
+    let used = 0;
+    for (const li of items) {
+      const liStyle = getComputedStyle(li);
+      const h = li.offsetHeight + getNum(liStyle.marginTop) + getNum(liStyle.marginBottom);
+      if (used + h <= available) {
+        used += h;
+      } else {
+        li.classList.add('d-none');
+      }
+    }
+  }
+
+  function debounce(fn, wait) {
+    let t;
+    return function() {
+      clearTimeout(t);
+      t = setTimeout(() => fn.apply(this, arguments), wait);
+    };
+  }
+
+  window.addEventListener('load', fitNoticeItems);
+  window.addEventListener('resize', debounce(fitNoticeItems, 150));
+</script>
 
 </body>
 </html>

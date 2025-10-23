@@ -9,7 +9,7 @@
   <title>인사는 내맘대로</title>
   <script src="https://kit.fontawesome.com/08035877d1.js" crossorigin="anonymous"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="/res/js/script.js"></script>
+  <script src="/hrm/js/script.js"></script>
   
   <style>
     body {
@@ -128,7 +128,6 @@
         <h5 style="margin-bottom: 15px; color: #333;">채팅</h5>
         <ul class="submenu">
           <li><a href="/chat/list"><i class="fas fa-comments"></i> 채팅 목록</a></li>
-          <li><a href="/chat/new"><i class="fas fa-plus-circle"></i> 새 채팅</a></li>
         </ul>
       </div>
 

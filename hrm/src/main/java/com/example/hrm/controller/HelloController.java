@@ -15,6 +15,9 @@ public class HelloController {
 	@org.springframework.beans.factory.annotation.Autowired
 	private com.example.hrm.config.service.EmployeeService employeeService;
 
+	@org.springframework.beans.factory.annotation.Autowired
+	private com.example.hrm.config.service.NoticeService noticeService;
+
 	@GetMapping("/")
 	private String index() {
 		System.out.println("=======================test");
@@ -39,7 +42,7 @@ public class HelloController {
 	@GetMapping("/main")
 	private String main(org.springframework.security.core.Authentication auth, org.springframework.ui.Model model) {
 		if (auth != null && auth.getPrincipal() instanceof com.example.hrm.dto.UserDto u) {
-			String employeeId = u.getEmployeeId();
+			String employeeId = String.valueOf(u.getEmployeeId());
 			if (employeeId != null) {
 				com.example.hrm.dto.EmployeeDto me = employeeService.getEmployeeById(employeeId);
 				if (me != null) {
@@ -48,20 +51,22 @@ public class HelloController {
 				}
 			}
 		}
+		// 공지사항 타이틀 목록 주입(충분히 많이 가져오고, 화면에서 박스 높이에 맞춰 출력)
+		model.addAttribute("noticeTitles", noticeService.getRecentTitles(50));
 		return "/hrm/main";
 	}
-	@GetMapping("/vacation")
+	/*@GetMapping("/vacation")
 	private String vacation() {
 		return "/hrm/vacation";
-	}
+	}*/
 	@GetMapping("/attendance")
 	private String attendance() {
 		return "/hrm/attendance";
 	}
-	@GetMapping("/check")
+	/*@GetMapping("/check")
 	private String check() {
 		return "/hrm/check";
-	}
+	}*/
 	@GetMapping("/department")
 	private String department() {
 		return "/hrm/department";

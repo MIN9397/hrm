@@ -40,6 +40,12 @@
         FROM attendance
         ORDER BY work_date DESC
     </select>
-    
+    <!-- ✅ 근태 수정 -->
+	<update id="updateAttendance" parameterType="com.example.hrm.dto.AttendanceDto">
+	    UPDATE attendance
+	    SET check_in_time = #{checkInTime},
+	        check_out_time = #{checkOutTime}
+	    WHERE attendance_id = #{attendanceId}
+	</update>
     
 </mapper>

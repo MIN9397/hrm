@@ -1,63 +1,153 @@
 package com.example.hrm.controller;
 
-import com.example.hrm.dto.ChatMessage;
+import com.example.hrm.config.service.ChatService;
+import com.example.hrm.config.service.EmployeeService;
+import com.example.hrm.dto.ChatMessageDto;
+import com.example.hrm.dto.EmployeeDto;
 import com.example.hrm.dto.UserDto;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
+@RequiredArgsConstructor
 public class ChatController {
 
-    private final SimpMessagingTemplate template;
+	private final SimpMessagingTemplate template;
+	private final ChatService chatService;
+	private final EmployeeService employeeService;
 
-    @Autowired
-    public ChatController(SimpMessagingTemplate template) {
-        this.template = template;
-    }
+	// 채팅 목록 페이지
+	@GetMapping("/chat/list")
+	public String chatList() {
+		return "/hrm/chat/list";
+	}
 
-    // 채팅 목록 페이지
-    @GetMapping("/chat/list")
-    public String chatList() {
-        return "/hrm/chat/list";
-    }
+	// 채팅방 페이지
+	@GetMapping("/chat/room/{roomId}")
+	public String chatRoom(@PathVariable Integer roomId, Model model, Authentication auth) {
+		model.addAttribute("roomId", roomId);
 
-    // 채팅방 페이지
-    @GetMapping("/chat/room/{roomId}")
-    public String chatRoom(@PathVariable String roomId, Model model) {
-        model.addAttribute("roomId", roomId);
-        return "/hrm/chat/room";
-    }
-    
-    // 새 채팅 시작 페이지 (임시로 목록으로 리다이렉트)
-    @GetMapping("/chat/new")
-    public String chatNew() {
-        return "redirect:/chat/list";
-    }
+		Long myEmployeeId = null;
+		if (auth != null && auth.getPrincipal() instanceof UserDto user) {
+			myEmployeeId = Long.valueOf(user.getEmployeeId());
+			model.addAttribute("me", user);
+		}
 
-    @MessageMapping("/chat.send")
-    public void send(ChatMessage message, Authentication auth) {
-        if (message == null) return;
+		// 채팅방 상세 정보 조회 (상대방 이름 포함)
+		Map<String, Object> roomDetail = chatService.getRoomDetail(roomId, myEmployeeId);
 
-        // 보낸이 값이 없으면 로그인 사용자로 설정
-        if ((message.getSender() == null || message.getSender().isBlank()) && auth != null) {
-            Object principal = auth.getPrincipal();
-            if (principal instanceof UserDto user) {
-                String fallback = user.getUsername() != null && !user.getUsername().isBlank()
-                        ? user.getUsername()
-                        : user.getEmployeeCode();
-                message.setSender(fallback);
-            }
-        }
+		// 기본 표시 이름
+		String displayName = "채팅방";
+		if (roomDetail != null && roomDetail.get("partnerName") != null) {
+			displayName = (String) roomDetail.get("partnerName");
+		}
 
-        message.setTimestamp(LocalDateTime.now().toString());
-        template.convertAndSend("/topic/chat", message);
-    }
+		// 부서 채팅방이면 room_name에서 접두어 제거 후 부서명만 표시
+		String rawRoomName = chatService.getRoomName(roomId);
+		if (rawRoomName != null && rawRoomName.startsWith("DEPT-")) {
+			int idx = rawRoomName.indexOf(':');
+			displayName = (idx > -1) ? rawRoomName.substring(idx + 1).trim() : rawRoomName;
+		}
+
+		model.addAttribute("roomName", displayName);
+		model.addAttribute("partnerName", displayName);
+
+		return "/hrm/chat/room";
+	}
+
+	// 사원 목록 조회
+	@GetMapping("/chat/employees")
+	@ResponseBody
+	public List<Map<String, String>> employees() {
+		List<EmployeeDto> list = employeeService.getEmployees();
+		return list.stream().map(e -> {
+			Map<String, String> m = new HashMap<>();
+			m.put("employeeId", String.valueOf(e.getEmployeeId()));
+			m.put("username", e.getUsername());
+			m.put("deptName", e.getDeptName());
+			return m;
+		}).toList();
+	}
+
+	// 새 채팅방 생성
+	@PostMapping("/chat/room/new")
+	@ResponseBody
+	public Map<String, Object> createRoom(@RequestParam Long targetEmployeeId, Authentication auth) {
+		Long myId = null;
+		if (auth != null && auth.getPrincipal() instanceof UserDto user) {
+			myId = Long.valueOf(user.getEmployeeId());
+		}
+		Integer roomId = chatService.createRoom(myId, targetEmployeeId);
+		return Map.of("roomId", roomId);
+	}
+
+	// 부서 채팅방 생성/접속
+	@PostMapping("/chat/room/dept/new")
+	@ResponseBody
+	public Map<String, Object> createDeptRoom(Authentication auth) {
+		Long myId = null;
+		if (auth != null && auth.getPrincipal() instanceof UserDto user) {
+			myId = Long.valueOf(user.getEmployeeId());
+		}
+		if (myId == null) {
+			return Map.of("error", "unauthorized");
+		}
+		Integer roomId = chatService.createDeptRoomFor(myId);
+		return Map.of("roomId", roomId);
+	}
+
+	// 채팅방 목록 조회
+	@GetMapping("/chat/rooms")
+	@ResponseBody
+	public List<Map<String, Object>> getRoomList(Authentication auth) {
+		Long myId = null;
+		if (auth != null && auth.getPrincipal() instanceof UserDto user) {
+			myId = Long.valueOf(user.getEmployeeId());
+		}
+
+		if (myId == null) {
+			// 인증 정보가 없을 경우 빈 리스트 반환
+			return List.of();
+		}
+
+		List<Map<String, Object>> rooms = chatService.getRoomList(myId);
+
+		// 디버깅용 로그 추가 (선택사항)
+		System.out.println("채팅방 목록 조회 - 사용자 ID: " + myId + ", 채팅방 수: " + rooms.size());
+
+		return rooms;
+	}
+
+	// 채팅방 메시지 목록 조회 (추가)
+	@GetMapping("/chat/room/{roomId}/messages")
+	@ResponseBody
+	public List<ChatMessageDto> getMessages(@PathVariable Integer roomId) {
+		return chatService.getMessages(roomId);
+	}
+
+	// 메시지 전송 (STOMP)
+	@MessageMapping("/chat.send")
+	public void send(ChatMessageDto message, Authentication auth) {
+		if (message == null || message.getMessage() == null || message.getMessage().trim().isEmpty())
+			return;
+
+		if (message.getSenderId() == null && auth != null && auth.getPrincipal() instanceof UserDto user) {
+			message.setSenderId(Long.valueOf(user.getEmployeeId()));
+		}
+
+		message.setCreatedAt(LocalDateTime.now());
+		chatService.saveMessage(message);
+		template.convertAndSend("/topic/chat/" + message.getRoomId(), message);
+	}
+
 }

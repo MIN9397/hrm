@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="_csrf" content="${_csrf.token}"/>
 <meta name="_csrf_header" content="${_csrf.headerName}"/>
-<title>채팅방</title>
+<title><c:out value="${partnerName}"/> - 채팅방</title>
 <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet' />
 <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css' rel='stylesheet' />
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
@@ -103,8 +103,11 @@
 <div class="main-content">
   <div class="chat-container">
     <div class="chat-header">
-      <div>
-        <h4 class="mb-0"><i class="bi bi-chat-dots"></i> 채팅방 ${roomId}</h4>
+      <div class="d-flex align-items-center gap-2">
+        <h4 class="mb-0">
+          <i class="bi bi-person-circle"></i> 
+          <span id="roomTitle"><c:out value="${partnerName}"/></span>
+        </h4>
       </div>
       <a href="/chat/list" class="btn btn-sm btn-outline-secondary">
         <i class="bi bi-list"></i> 목록으로
@@ -126,94 +129,125 @@
 
 <script>
   let stompClient = null;
-  
-  function connect() {
-    const socket = new SockJS('/ws');
-    stompClient = Stomp.over(socket);
-    
-    stompClient.connect({}, function(frame) {
-      console.log('Connected: ' + frame);
-      
-      stompClient.subscribe('/topic/chat', function(message) {
-        const chatMessage = JSON.parse(message.body);
-        showMessage(chatMessage);
-      });
-      
-      // 입장 메시지
-      const joinMessage = {
-        type: 'JOIN',
-        sender: '${me.username}' || '사용자',
-        content: '님이 입장하셨습니다.'
-      };
-      stompClient.send("/app/chat.send", {}, JSON.stringify(joinMessage));
-    });
+  // 로그인 사용자 ID (없으면 null)
+  const CURRENT_USER_ID = Number('${empty me ? "" : me.employeeId}') || null;
+  // 현재 채팅방 ID - 안전하게 정수 파싱
+  const ROOM_ID = parseInt('${roomId}', 10);
+  // 상대방 이름
+  const PARTNER_NAME = '<c:out value="${partnerName}"/>' || '채팅방';
+
+  // URL 안전 생성 헬퍼
+  function buildUrl(...parts) {
+    return parts
+      .map(part => String(part).replace(/^\/+|\/+$/g, ''))
+      .filter(part => part.length > 0)
+      .join('/');
   }
-  
-  function sendMessage() {
-    const input = document.getElementById('messageInput');
-    const content = input.value.trim();
-    
-    if (content && stompClient) {
-      const message = {
-        type: 'CHAT',
-        content: content,
-        sender: '${me.username}' || '사용자'
-      };
-      
-      stompClient.send("/app/chat.send", {}, JSON.stringify(message));
-      input.value = '';
-    }
-  }
-  
-  function showMessage(message) {
-    const messagesDiv = document.getElementById('chatMessages');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'message';
-    
-    const currentUser = '${me.username}' || '사용자';
-    if (message.sender === currentUser) {
-      messageDiv.classList.add('mine');
+
+  window.addEventListener('DOMContentLoaded', function() {
+    if (!ROOM_ID || isNaN(ROOM_ID) || ROOM_ID <= 0) {
+      alert('유효하지 않은 채팅방입니다.');
+      window.location.href = '/chat/list';
+      return;
     }
     
-    if (message.type === 'JOIN' || message.type === 'LEAVE') {
-      messageDiv.innerHTML = `
-        <div style="text-align: center; color: #999; font-size: 0.85rem;">
-          ${message.sender} ${message.content}
-        </div>
-      `;
-    } else {
-      messageDiv.innerHTML = `
-        <div class="message-sender">${message.sender}</div>
-        <div class="message-content">${message.content}</div>
-      `;
-    }
+    // 페이지 타이틀 설정
+    document.title = PARTNER_NAME + ' - 채팅방';
     
-    messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  }
-  
-  // Enter 키로 전송
-  document.addEventListener('DOMContentLoaded', function() {
-    connect();
+    // 기존 메시지 히스토리 먼저 로드
+    try { loadHistory(); } catch (e) { console.error('Failed to load history:', e); }
+    // STOMP 연결
+    try { connect(); } catch (e) { console.error('Failed to connect STOMP:', e); }
     
+    // Enter 키로 메시지 전송
     document.getElementById('messageInput').addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
         sendMessage();
       }
     });
   });
-  
-  // 페이지 나갈 때 퇴장 메시지
+
+  function connect() {
+    const socket = new SockJS('/ws-stomp');
+    stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function(frame) {
+      console.log('Connected: ' + frame);
+
+      // 방별 topic 구독
+      stompClient.subscribe('/topic/chat/' + ROOM_ID, function(message) {
+        const chatMessage = JSON.parse(message.body);
+        showMessage(chatMessage);
+      });
+    });
+  }
+
+  function sendMessage() {
+    const messageInput = document.getElementById('messageInput');
+    const messageContent = messageInput.value.trim();
+    
+    if (!messageContent) {
+      return;
+    }
+
+    // 서버 DTO(ChatMessageDto)에 맞춘 필드만 전송
+    const message = {
+      roomId: ROOM_ID,
+      message: messageContent
+    };
+
+    if (stompClient && stompClient.connected) {
+      stompClient.send("/app/chat.send", {}, JSON.stringify(message));
+      messageInput.value = '';
+    } else {
+      alert('서버와의 연결이 끊어졌습니다. 잠시 후 다시 시도해주세요.');
+    }
+  }
+
+  // 채팅방 메시지 히스토리 로드
+  function loadHistory() {
+    const url = '/' + buildUrl('chat', 'room', ROOM_ID, 'messages');
+    fetch(url)
+      .then(res => {
+        if (!res.ok) throw new Error('failed to load history: ' + res.status);
+        return res.json();
+      })
+      .then(list => {
+        if (Array.isArray(list)) {
+          list.forEach(msg => showMessage(msg));
+        }
+      })
+      .catch(err => console.error('메시지 기록 로드 실패:', err));
+  }
+
+  // 페이지 이탈 시 안전하게 연결 종료
   window.addEventListener('beforeunload', function() {
-    if (stompClient) {
-      const leaveMessage = {
-        type: 'LEAVE',
-        sender: '${me.username}' || '사용자',
-        content: '님이 퇴장하셨습니다.'
-      };
-      stompClient.send("/app/chat.send", {}, JSON.stringify(leaveMessage));
+    if (stompClient && stompClient.connected) {
+      try {
+        stompClient.disconnect(function() {});
+      } catch (e) {
+        // ignore
+      }
     }
   });
+
+  function showMessage(msg) {
+    const box = document.getElementById('chatMessages');
+    if (!box) return;
+
+    const isMine = (CURRENT_USER_ID != null) && (Number(msg && msg.senderId) === Number(CURRENT_USER_ID));
+
+    const wrap = document.createElement('div');
+    wrap.className = 'message' + (isMine ? ' mine' : '');
+
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    content.textContent = msg && msg.message ? String(msg.message) : '';
+
+    wrap.appendChild(content);
+    box.appendChild(wrap);
+    box.scrollTop = box.scrollHeight;
+  }
 </script>
 
 </body>

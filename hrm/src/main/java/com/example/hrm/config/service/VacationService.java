@@ -39,5 +39,10 @@ public class VacationService {
         return vacationMapper.getAllVacations(null);
     }
 
+	public VacationDto getVacationById(int leaveId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
 

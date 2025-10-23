@@ -49,5 +49,8 @@ public class AttendanceService {
         return mapper.getAllAttendance();
     }
 	
+	public void updateAttendance(AttendanceDto dto) {
+	    mapper.updateAttendance(dto);
+	}
 
 }
