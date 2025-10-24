@@ -77,7 +77,7 @@ jobs:
           DB_PORT=3306 \
           DB_NAME=hrmdb \
           DB_USER=admin \
-          DB_PASSWORD=${{ secrets.DBPASS }} \
+          DBPASS=${{ secrets.DBPASS }} \
           EMAILPASS=${{ secrets.EMAILPASS }} \
           java -jar /home/${{ secrets.EC2_USER }}/app.war > app.log 2>&1 & "
         
