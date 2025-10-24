@@ -37,22 +37,24 @@ public class MailController {
             Authentication auth,
             RedirectAttributes ra
     ) {
-        String fromEmail = null;
+        String userEmail = null;
         if (auth != null && auth.getPrincipal() instanceof UserDto user) {
-            fromEmail = user.getEmail();
+            userEmail = user.getEmail(); // 로그인 사용자 이메일
         }
 
-        if (fromEmail == null || fromEmail.isBlank()) {
+        if (userEmail == null || userEmail.isBlank()) {
             ra.addFlashAttribute("error", "로그인한 사용자의 이메일이 없습니다. 프로필에서 이메일을 먼저 등록해주세요.");
             return "redirect:/mail/compose";
         }
 
         try {
-            mailService.sendMail(fromEmail, toEmail, subject, content, attachments);
+            System.out.println(userEmail+"/"+toEmail);
+            mailService.sendMail(userEmail, toEmail, subject, content, attachments);
             ra.addFlashAttribute("success", "메일을 성공적으로 전송했습니다.");
         } catch (Exception e) {
             ra.addFlashAttribute("error", "메일 전송에 실패했습니다: " + e.getMessage());
         }
         return "redirect:/mail/compose";
     }
+
 }

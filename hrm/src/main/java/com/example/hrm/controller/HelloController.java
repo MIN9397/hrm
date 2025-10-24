@@ -41,7 +41,9 @@ public class HelloController {
 	
 	@GetMapping("/main")
 	private String main(org.springframework.security.core.Authentication auth, org.springframework.ui.Model model) {
-		if (auth != null && auth.getPrincipal() instanceof com.example.hrm.dto.UserDto u) {
+		System.out.println("=======================auth :" + auth);
+        System.out.println("=======================user :" + auth.getPrincipal());
+        if (auth != null && auth.getPrincipal() instanceof com.example.hrm.dto.UserDto u) {
 			String employeeId = String.valueOf(u.getEmployeeId());
 			if (employeeId != null) {
 				com.example.hrm.dto.EmployeeDto me = employeeService.getEmployeeById(employeeId);
@@ -51,6 +53,9 @@ public class HelloController {
 				}
 			}
 		}
+        else {
+            return "redirect:/login";
+        }
 		// 공지사항 타이틀 목록 주입(충분히 많이 가져오고, 화면에서 박스 높이에 맞춰 출력)
 		model.addAttribute("noticeTitles", noticeService.getRecentTitles(50));
 		return "/hrm/main";
@@ -84,12 +89,5 @@ public class HelloController {
 		return "/hrm/login";
 	}
 	
-	// 로그인 성공시 세션에 로그인 정보를 저장
-	@GetMapping("/login-success")
-	private String loginsuccess(@AuthenticationPrincipal UserDetails user, HttpSession session) {
-		System.out.println("user : " + user);
-		session.setAttribute("user", user);
-		return "redirect:/main";
-	}
-	
+
 }

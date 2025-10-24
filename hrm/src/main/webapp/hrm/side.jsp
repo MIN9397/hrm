@@ -109,10 +109,17 @@
     <!-- 우측 상단 메뉴 -->
     <div class="user-menu">
       <a href="/main">홈(Home)</a>
-      <a href="/">로그인</a>
-      <a href="/">로그아웃</a>
+      <a href="/login">로그인</a>
+
+      <!-- 로그아웃 (POST 방식) -->
+      <a href="#" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();">로그아웃</a>
+      <form id="logoutForm" action="/logout" method="post" style="display:none;">
+          <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+      </form>
+
       <a href="/mypage">마이프로필</a>
     </div>
+
   </header>
 
   <!-- 헤더 아래 레이아웃 -->
@@ -132,13 +139,6 @@
         </ul>
       </div>
 
-      <!-- 메일 탭 (메뉴 하단 고정) -->
-      <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
-        <h5 style="margin-bottom: 15px; color: #333;">메일</h5>
-        <ul class="submenu">
-          <li><a href="/mail/compose"><i class="fas fa-envelope"></i> 메일 보내기</a></li>
-        </ul>
-      </div>
     </div>
 
 

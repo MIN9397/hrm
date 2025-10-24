@@ -141,7 +141,7 @@
 
     <!-- 오른쪽 로그인 폼 -->
     <div class="right">
-	<form action="/main" method="post" name="loginForm">
+	<form action="/login-process" method="post" name="loginForm">
       <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 	  
       <h1>내맘대로 H.R.M</h1>

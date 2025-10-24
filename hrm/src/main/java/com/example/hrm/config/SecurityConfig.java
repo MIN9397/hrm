@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -27,15 +28,15 @@ public class SecurityConfig {
 		System.out.println("=================   SecurityFilterChain");
 		http
 			.authorizeHttpRequests((authorize) -> authorize
-				.requestMatchers("/.well-known/**", "/login", "/", "/error").permitAll()
+				.requestMatchers("/", "/login", "/error", "/css/**", "/js/**", "/img/**", "/.well-known/**").permitAll()
 				//.requestMatchers("/admin/**").hasRole("ADMIN")
 				//.requestMatchers("/user/**").hasRole("USER")
-				.anyRequest().permitAll()
+				.anyRequest().authenticated()
 			)
 			//.httpBasic(Customizer.withDefaults())
 			.formLogin(form -> form
 					.loginPage("/login")
-					.loginProcessingUrl("/main")
+					.loginProcessingUrl("/login-process")
 					.usernameParameter("employee_code")
 					.passwordParameter("password")
 					.permitAll()
@@ -71,11 +72,20 @@ public class SecurityConfig {
 					// 로그아웃 시 쿠키를 삭제
 					.deleteCookies("JSESSIONID")
 		   );
-			
 
 		return http.build();
 	}
 
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers(
+                "/css/**",
+                "/js/**",
+                "/img/**",
+                "/favicon.ico",
+                "/WEB-INF/**"   // ✅ JSP 뷰 제외!
+        );
+    }
 	/*
 	@Bean
 	public UserDetailsService userDetailsService() {

@@ -10,7 +10,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
 </head>
 <body class="bg-light">
-<sec:authorize access="principal.role_id == '2'">
+<sec:authorize access="principal.roleId == '2'">
 <div class="container py-4">
   <h3 class="mb-3"><i class="bi bi-person-plus-fill me-2"></i>사원 등록</h3>
 
@@ -75,7 +75,7 @@
   </form>
 </div>
 </sec:authorize>
-<sec:authorize access="!(principal.role_id == '2')">
+<sec:authorize access="!(principal.roleId == '2')">
   <div class="container py-5 text-center text-muted">
     접근 권한이 없습니다.
     <div class="mt-3">
