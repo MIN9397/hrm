@@ -11,37 +11,75 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/treant-js/1.0/Treant.min.js"></script>
 
     <style>
-        body {
-            background: #f8f9fa;
-            font-family: 'Noto Sans KR', sans-serif;
-        }
-       .nodeExample1 {
-        font-size: 14px;
-        text-align: center;
-        padding: 10px;
-        border: 2px solid #6c757d;
-        border-radius: 10px;
-        background-color: #fff;
-        box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
-    }
-        .Treant > .node {
-            text-align: center;
-        }
-        .nodeExample1 img {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-bottom: 5px;
-    }
-    .chart {
-        margin: 40px auto;
-    }
+      body {
+	    background: #f8f9fa;
+	    font-family: 'Noto Sans KR', sans-serif;
+		}
+		
+		/* 제목 중앙 */
+		.content-area h2 {
+		    text-align: center;
+		    margin-bottom: 30px;
+		    font-size: 26px;
+		    font-weight: 700;
+		}
+		
+		/* 조직도 우측 영역 전체 */
+		.content-area {
+		    width: 100%;
+		    padding: 20px 0;
+		    display: flex;
+		    flex-direction: column;
+		    align-items: center; /* ✅ 중앙 정렬 핵심 */
+		}
+		
+		//* 조직도 트리 중앙 */
+		.chart {
+		    width: 1200px;            /* 트리 최대 폭 */
+		    display: flex;
+		    justify-content: center;  /* ✅ 중앙 정렬 */
+		    margin: 0 auto;
+		    padding-bottom: 50px;
+		}
+		
+		/* ✅ 노드 디자인 업그레이드 */
+		.nodeExample1 {
+		    font-size: 14px;
+		    text-align: center;
+		    padding: 12px 10px;
+		    border: 2px solid #dee2e6;
+		    border-radius: 12px;
+		    background-color: #fff;
+		    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+		    transition: 0.2s;
+		    width: 200px;
+		}
+		
+		/* Hover 효과 */
+		.nodeExample1:hover {
+		    transform: translateY(-3px);
+		    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.18);
+		}
+		
+		.nodeExample1 img {
+		    width: 60px;
+		    height: 60px;
+		    border-radius: 50%;
+		    object-fit: cover;
+		    margin-bottom: 6px;
+		}
+		
+		.Treant > .node {
+		    text-align: center;
+		}
+
     </style>
 </head>
 <body>
+<%@include file="/hrm/side.jsp" %>
+<div class="content-area">
+<h2 >직원 조직도</h2>
 
-<h2 style="text-align:center;">직원 조직도</h2>
 <div id="basic-example" class="chart">로딩 중...</div>
 <div id="nodes-container" style="display: none;"></div> <!-- 노드 DOM 요소 보관용 -->
 
@@ -137,6 +175,6 @@ fetch('/api/userac')
 </script>
 
 
-
+</div>
 </body>
 </html>
