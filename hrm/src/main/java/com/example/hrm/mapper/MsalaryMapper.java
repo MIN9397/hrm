@@ -23,6 +23,16 @@ public interface MsalaryMapper {
             "LIMIT #{start}, #{end}")
     List<SalaryDetailDTO> getList(@Param("start") int start, @Param("end") int end);
     
+    // 개별 리스트 조회 (페이징 적용)
+    @Select("SELECT * " +
+            "FROM pay_detail " +
+            "WHERE employee_id = #{employeeId} " +
+            "ORDER BY pay_id DESC " +
+            "LIMIT #{start}, #{end}")
+    List<SalaryDetailDTO> findByEmployeeId(@Param("employeeId") String employeeId,
+            @Param("start") int start,
+            @Param("end") int end);
+    
     // 전체 데이터 개수
     @Select("SELECT COUNT(*) FROM pay_detail")
     int getTotalCount();

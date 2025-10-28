@@ -119,6 +119,9 @@
 <h2 style="text-align:center;">월별 급여 리스트</h2>
 
 <!-- ✅ 연도, 월 입력 + 월급여 생성 버튼 -->
+
+
+<c:if test="${user.roleId eq 2}">
 <div class="salary-generate-form">
   <form action="/msalary" method="post">
     <input type="number" name="year" placeholder="연도" required min="2000" max="2100">
@@ -127,6 +130,7 @@
     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
   </form>
 </div>
+</c:if>
 
 <table class="payd-table">
   <thead>
